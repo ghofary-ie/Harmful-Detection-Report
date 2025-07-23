@@ -22,3 +22,17 @@ This practical approach reflects real-world Trust & Safety workflows, where auto
 
 **Note on Data Usage:**  
 All efforts are made to handle the data responsibly, respecting user privacy and platform policies. Sensitive content is treated with care, and this project is intended solely for educational and portfolio purposes.
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="refresh" content="0; url=violation_map.html" />
+  <title>Interactive Map</title>
+</head>
+<body>
+  <p>If you are not redirected, <a href="violation_map.html">click here to see the map</a>.</p>
+</body>
+</html>
