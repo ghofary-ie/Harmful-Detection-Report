@@ -1,9 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Test Page</title>
+  <meta charset="UTF-8">
+  <title>Harmful Content Detection Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+    iframe { width: 100%; height: 700px; border: none; margin-top: 20px; }
+  </style>
 </head>
 <body>
-  <h1>Hello, it works!</h1>
+
+  <h1>Harmful Content Detection Pipeline: From Data to Insights</h1>
+
+  <p>This project demonstrates a complete workflow for detecting harmful content on social media using machine learning models combined with human review.</p>
+
+  <p>The dataset used originates from <a href="https://www.kaggle.com/">Kaggle.com</a> and is intended for research and educational purposes.</p>
+
+  <ul>
+    <li>Loads and preprocesses raw comment data</li>
+    <li>Applies transformer-based toxicity models (e.g., Detoxify, HuggingFace)</li>
+    <li>Integrates human review labels to validate and improve model predictions</li>
+    <li>Identifies false positives and false negatives for error analysis</li>
+    <li>Provides clear evaluation metrics and visualizations</li>
+    <li>Highlights real-world challenges in content moderation</li>
+  </ul>
+
+  <p><strong>Note on Data Usage:</strong><br>
+  This project is for educational and portfolio purposes. All data is handled responsibly.</p>
+
+  <h2>🌍 Interactive Violation Map</h2>
+  <iframe src="violation_map.html"></iframe>
+
 </body>
 </html>
