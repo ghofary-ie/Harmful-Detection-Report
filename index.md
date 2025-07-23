@@ -3,7 +3,6 @@ layout: default
 title: Home
 ---
 
-
 # Harmful Content Detection Pipeline: From Data to Insights
 
 This project demonstrates a complete workflow for detecting harmful content on social media using machine learning models combined with human review.
