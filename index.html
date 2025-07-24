@@ -42,6 +42,78 @@ iframe {
   This project is for educational and portfolio purposes. All data is handled responsibly.</p>
 
 
+<style>
+  /* Basic tab container styling */
+  .tab {
+    display: flex;
+    border-bottom: 2px solid #ccc;
+    max-width: 800px;
+    margin: 20px auto 0 auto;
+  }
+  .tab button {
+    background: none;
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 16px;
+    border-bottom: 3px solid transparent;
+    transition: border-color 0.3s;
+    color: #333;
+  }
+  .tab button.active {
+    border-color: #007BFF; /* blue underline for active */
+    font-weight: bold;
+    color: #007BFF;
+  }
+  .tabcontent {
+    max-width: 800px;
+    margin: 20px auto;
+    display: none;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #333;
+  }
+  .tabcontent.active {
+    display: block;
+  }
+</style>
+
+<div class="tab">
+  <button class="tablinks active" onclick="openTab(event, 'objective')">Project Objective</button>
+  <button class="tablinks" onclick="openTab(event, 'background')">Project Background</button>
+</div>
+
+<div id="objective" class="tabcontent active">
+  <p>
+    The primary goal is to develop an effective and adaptive pipeline that accurately detects harmful content by leveraging both automated machine learning models and human judgment. Additionally, the project seeks to identify linguistic patterns, hashtags, and open-source intelligence (OSINT) indicators that can help recognize emerging online threats early, supporting proactive and scalable content moderation efforts.
+  </p>
+</div>
+
+<div id="background" class="tabcontent">
+  <p>
+    Content moderation on social media faces complex challenges due to the evolving nature of language, cultural context, and coordinated harmful campaigns. Machine learning models alone may miss subtle or context-dependent toxic behavior, making human review essential to improve precision. This project works with approximately 8,000 tweets collected over one week (January 1–7, 2025) to explore how combining AI tools with human oversight can enhance detection accuracy. It also investigates OSINT signals such as trending hashtags and linguistic patterns that inform early threat identification. Throughout the project, ethical considerations and responsible data practices are prioritized to contribute to safer and healthier online communities.
+  </p>
+</div>
+
+<script>
+  function openTab(evt, tabName) {
+    // Hide all tabcontent
+    const contents = document.querySelectorAll('.tabcontent');
+    contents.forEach(c => c.classList.remove('active'));
+
+    // Remove active class from all buttons
+    const tabs = document.querySelectorAll('.tablinks');
+    tabs.forEach(t => t.classList.remove('active'));
+
+    // Show current tab, add active class to clicked button
+    document.getElementById(tabName).classList.add('active');
+    evt.currentTarget.classList.add('active');
+  }
+</script>
+
+
+
+  
 
 <h2 style="text-align:center; margin-top: 40px;">Overview of Detected Violation Types</h2>
 <p style="text-align:justify; max-width: 700px;">
