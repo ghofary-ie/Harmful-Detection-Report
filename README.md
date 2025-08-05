@@ -178,7 +178,73 @@ After reviewing the tweets flagged as harmful by the model, the next step involv
 Using this targeted keyword search allows us to catch harmful content that the model may have missed. Based on this review, each tweet is labeled as "harmful" or "safe" in Final Review column. This additional step ensures a more comprehensive detection process by combining automated filtering with human insight.
 
 
+5. Comparing Model Predictions with Human Review
 
+This section compares the harmful content labels predicted by the machine learning models with the labels assigned through manual human review. It helps to evaluate the model's accuracy by identifying agreements, false positives (model flagged safe content as harmful), and false negatives (model missed harmful content). The comparison supports improving detection performance and understanding the model’s strengths and weaknesses.
 
+```python
+import pandas as pd
+raw_path = '/content/drive/MyDrive/Notebook Twitter Project/RawData.csv'             # Load the raw model predictions and human review datasets from Google Drive
+review_path = '/content/drive/MyDrive/Notebook Twitter Project/HumanReview20250721_230147 - Clean Data.csv'
+
+df_raw = pd.read_csv(raw_path)
+df_review = pd.read_csv(review_path)
+```
+Ensures column names are uniform, avoiding errors during merge due to mismatched column names.
+```python
+df_raw.columns = df_raw.columns.str.strip().str.lower()                                # Clean column names by removing whitespace and converting to lowercase for consistent merging
+df_review.columns = df_review.columns.str.strip().str.lower()
+```
+Merges the two datasets using the unique identifier id, keeping only the common rows (how='inner').
+```python 
+df = pd.merge(df_raw, df_review[['id', 'human review']], on='id', how='inner')
+```
+Cleans and standardizes the label text to avoid mismatch during comparison and maps the model’s harmful/not harmful labels to human review’s violation/safe.
+```python
+df['transformer_harmful'] = df['transformer_harmful'].str.lower().str.strip()
+df['human review'] = df['human review'].str.lower().str.strip()
+
+df['transformer_harmful'] = df['transformer_harmful'].replace({
+    'harmful': 'violation',
+    'not harmful': 'safe'
+})
+```
+This part creates three new columns in the dataframe to help analyze the agreement between the model's predictions and the human review labels, These columns are key to quantitatively assessing the model's errors and accuracy by breaking down where it agrees or disagrees with human judgment.
+
+```python
+df['match'] = df['transformer_harmful'] == df['human review']                           # Create boolean columns to identify agreement and disagreement between model and human labels
+df['false_positive'] = (df['human review'] == 'safe') & (df['transformer_harmful'] == 'violation')
+df['false_negative'] = (df['human review'] == 'violation') & (df['transformer_harmful'] == 'safe')
+```
+Displays the total number of evaluated samples and counts of correct predictions and errors.
+```python 
+print(f"Total Samples: {len(df)}")                                                      # Print evaluation summary statistics
+print("Evaluation Summary:")
+print(f"Correct Matches: {df['match'].sum()}")
+print(f"False Positives (Model says Violation, human says Safe): {df['false_positive'].sum()}")
+print(f"False Negatives (Model says Safe, human says Violation): {df['false_negative'].sum()}")
+```
+Saves the dataframe including evaluation results and combined dataset with evaluation columns back to Google Drive for record-keeping and further analysis
+```python
+output_path = '/content/drive/MyDrive/Notebook Twitter Project/Final_evaluation_result.csv'
+df.to_csv(output_path, index=False)
+print(f"\n Saved to: {output_path}")
+```
+Filters and displays tweets where the model made incorrect predictions for deeper manual inspection.
+```python
+false_positives = df[df['false_positive']]
+display(false_positives[['tweet', 'transformer_harmful', 'human review']])
+
+false_negatives = df[df['false_negative']]
+display(false_negatives[['tweet', 'transformer_harmful', 'human review']])
+```
+Filters and displays tweets where the model made incorrect predictions for deeper manual inspection and to Show example false positives and false negatives with relevant columns to inspect the errors manually
+```python
+false_positives = df[df['false_positive']]
+display(false_positives[['tweet', 'transformer_harmful', 'human review']])
+
+false_negatives = df[df['false_negative']]
+display(false_negatives[['tweet', 'transformer_harmful', 'human review']])
+```
 
 
