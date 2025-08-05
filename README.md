@@ -43,3 +43,142 @@ The dataset includes about 8,000 tweets collected over one week (January 1–7, 
 
 # Data Processing
 
+Preparing for Data Processing using Python: 
+1. Instaling the libraries
+
+Run this first to make sure all the needed packages are available. Especially important in Colab or a new setup.
+
+```python
+!pip install detoxify tqdm transformers datasets torch
+```
+
+Below are the libraries used in this project and their purposes:
+
+```python
+
+import pandas as pd                                                      # Data manipulation and analysis with DataFrames
+import numpy as np                                                       # Numerical operations and array handling
+import matplotlib.pyplot as plt                                          # Plotting static and interactive visualizations
+import seaborn as sns                                                    # Statistical data visualization built on matplotlib
+from sklearn.metrics import classification_report, confusion_matrix      # Model evaluation metrics
+from detoxify import Detoxify                                            # Pre-trained model for toxic content detection
+from transformers import pipeline                                        # Access to transformer based NLP models (HuggingFace)
+from tqdm import tqdm                                                    # Progress bars for loops and iterations
+```
+
+2. Importing the Dataset
+
+This snippet mounts Google Drive in Colab, then loads the CSV dataset containing Twitter data for the first week of January 2025 into a pandas DataFrame for processing and analysis.
+
+```python
+
+from google.colab import drive               # To mount Google Drive in Colab
+import pandas as pd                          
+
+file_path = '/content/drive/MyDrive/Notebook Twitter Project/Raw-Data-Week-1,Jan-2025.csv'
+
+df = pd.read_csv(file_path)
+
+df.head()
+```
+
+3. Data Cleaning
+   
+This code removes duplicate tweets based on the tweet text to ensure each tweet is unique. After cleaning, it prints the total number of remaining tweets for transparency and quality assurance.
+
+```python
+df = df.drop_duplicates(subset='text')
+
+print(f"Dataset size after cleaning: {len(df)} tweets")
+```
+
+4. Load and Apply Toxicity Models for Prediction
+
+In this step, I apply two machine learning models to detect harmful content in tweets:
+
+- Detoxify Model
+
+Install and load the Detoxify model, which predicts multiple toxicity related scores for each tweet.
+
+The model assigns scores for toxicity, severe toxicity, obscenity, threat, insult, and identity attack.
+
+I loop through each tweet, score it, and add the results back into our main DataFrame.
+
+Tweets with toxicity scores above a chosen threshold (0.8) are flagged as potentially harmful.
+
+- HuggingFace Toxic BERT Model
+
+Install and load the Toxic BERT model from HuggingFace, a powerful transformer based text classification model.
+
+This model cross checks the tweets by classifying each as "toxic" or "non-toxic" with a confidence score.
+
+I process each tweet (limiting input length to 512 tokens), storing the label and score in the DataFrame for comparison with Detoxify results.
+
+```python
+from detoxify import Detoxify
+from transformers import pipeline
+from tqdm import tqdm
+import pandas as pd
+
+detoxify_model = Detoxify('original')                                        # Load Detoxify model
+
+scores = []                                                                  # Score tweets using Detoxify
+for tweet in tqdm(df['tweet'], desc="Scoring tweets"):
+    score = detoxify_model.predict(tweet)
+    scores.append(score)
+
+scores_df = pd.DataFrame(scores)                                             # Combine Detoxify scores with the original DataFrame
+df = pd.concat([df.reset_index(drop=True), scores_df], axis=1)
+
+toxicity_threshold = 0.8                                                     # Flag tweets with toxicity > 0.8 as harmful
+df['ml_flagged'] = df['toxicity'] > toxicity_threshold
+print(df['ml_flagged'].value_counts())
+
+classifier = pipeline("text-classification", model="unitary/toxic-bert")     # Load HuggingFace Toxic-BERT model
+
+toxic_labels = []                                                            # Cross-check tweets with Toxic-BERT
+toxic_scores = []
+for tweet in tqdm(df['tweet'], desc="Cross-checking with Toxic-BERT"):
+    try:
+        result = classifier(tweet[:512])[0]
+        toxic_labels.append(result['label'])
+        toxic_scores.append(result['score'])
+    except Exception:
+        toxic_labels.append("error")
+        toxic_scores.append(0)
+
+df['toxicbert_label'] = toxic_labels                                         # Add Toxic-BERT results to DataFrame
+df['toxicbert_score'] = toxic_scores
+
+df.head()                                                                    # Preview updated DataFrame
+```
+
+5. Exporting Results for Human Review
+
+After processing and scoring the tweets with ML models, the results need to be reviewed manually to validate and improve accuracy. This step saves the current dataset—including model predictions and metadata—as a timestamped CSV file in your Google Drive. This makes it easy to share and track different versions of the data for human annotation and further analysis.
+
+```python
+import datetime                                                               # Saves the processed DataFrame as a CSV file with a timestamp in the filename (optional)
+
+timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+output_path = f'/content/drive/MyDrive/Notebook Twitter Project/HumanReview{timestamp}.csv'
+
+df.to_csv(output_path, index=False)
+print(f"Saved processed data to {output_path}")
+```
+
+6. Human Review and Manual Validation
+
+In this step, I focus on validating the model’s harmful content predictions by performing a manual review. I filter tweets that the model flagged as harmful based on Detoxify and HuggingFace models judgement, then review each tweet to confirm whether it truly violates community guidelines (X Rules and Policies). The manual judgment categorizes tweets as either "harmful" or "safe" in a Final Review column.
+
+The criteria for this review are aligned with specific sections of the community rules and policies, focusing on severe toxicity, obscenity, threat, insult, and identity attack. This process helps improve the overall accuracy by identifying false positives and false negatives, which the model alone might miss or misclassify.
+
+After reviewing the tweets flagged as harmful by the model, the next step involves manually checking tweets that the model marked as safe. This is done by searching for critical keywords (e.g., "Nigga", "Porn", "Child", "Teenager", "Sex") that frequently appear in harmful tweets identified earlier.
+
+Using this targeted keyword search allows us to catch harmful content that the model may have missed. Based on this review, each tweet is labeled as "harmful" or "safe" in Final Review column. This additional step ensures a more comprehensive detection process by combining automated filtering with human insight.
+
+
+
+
+
+
