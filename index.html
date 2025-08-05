@@ -177,6 +177,65 @@
       <p>The dataset includes about 8,000 tweets collected over one week (January 1–7, 2025). Each tweet is an anonymized user comment with details like the time it was posted. The tweets include all kinds of content some normal, some potentially harmful, such as threats, insults, or rude language. The data is cleaned and user privacy is protected. This dataset helps us study harmful content and build tools to detect it. We handle all data carefully and responsibly.</p>
       </div>
 
+       <style>
+    .collapsible {
+      background-color: #eee;
+      color: #444;
+      cursor: pointer;
+      padding: 10px 18px;
+      width: 100%;
+      border: none;
+      text-align: left;
+      outline: none;
+      font-size: 16px;
+      margin-top: 15px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .collapsible:hover {
+      background-color: #ddd;
+    }
+
+    .active-collapsible, .collapsible:active {
+      background-color: #ccc;
+    }
+
+    .content {
+      padding: 0 18px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background-color: white;
+      border-left: 1px solid #ccc;
+      border-right: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      border-radius: 0 0 5px 5px;
+    }
+
+    .content p {
+      margin: 10px 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  </style>
+
+  <script>
+    document.querySelectorAll('.collapsible').forEach(button => {
+      button.addEventListener('click', () => {
+        button.classList.toggle('active-collapsible');
+        const content = button.nextElementSibling;
+        if (content.style.maxHeight) {
+          content.style.maxHeight = null;
+        } else {
+          content.style.maxHeight = content.scrollHeight + "px";
+        }
+      });
+    });
+  </script>
+</div>
+
+
   <!-- Tab switching script -->
   <script>
     function openTab(evt, tabName) {
@@ -195,6 +254,7 @@
   </script>
 </body>
 </html>
+
 
 
 
