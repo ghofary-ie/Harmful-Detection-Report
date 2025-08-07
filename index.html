@@ -808,7 +808,7 @@ pre code {
   <p>
     This visualization displays the distribution of content violations identified during the human review process. 
     Obscene language is the most frequently flagged category, indicating its persistent presence in online interactions. 
-    Insults and identity-based attacks follow closely, suggesting a need for stricter moderation or improved model accuracy in these areas. 
+    Insults and identity based attacks follow closely, suggesting a need for stricter moderation or improved model accuracy in these areas. 
     Threats, while less common, remain a serious concern due to their potential real-world implications.
   </p>
 
@@ -816,28 +816,29 @@ pre code {
 
     <div class="insight-box">
     <strong>Insight:</strong> 
-    Dynamic Lexicon Updating ensures the moderation system stays effective by continuously refreshing the list of obscene terms using open-source intelligence and social media trends. This approach helps capture evolving slang and coded language, improving detection accuracy and community safety.
+    Dynamic Lexicon Updating ensures the moderation system stays effective by continuously refreshing the list of obscene terms using open source intelligence and social media trends. This approach helps capture evolving slang and coded language, improving detection accuracy and community safety.
     </div>
 
   <p>
   Every word carries weight, especially in online spaces where language can uplift or harm. In the effort to detect and moderate toxic content, identifying recurring harmful keywords becomes crucial.
   </p>
   <p> 
-  This chart tells a story hidden within our dataset: the most frequently used offensive terms flagged during human review. By mapping these keywords, we gain insight into the language patterns behind online violations — helping us prioritize moderation strategies, train better models, and foster safer digital environments.
+  This chart tells a story hidden within our dataset: the most frequently used offensive terms flagged during human review. By mapping these keywords, we gain insight into the language patterns behind online violations helping us prioritize moderation strategies, train better models, and foster safer digital environments.
   </p>
 
  
-  <div class="tab-wrapper">
-      <div class="tab">
+      <div class="tab-wrapper">
+        <div class="tab">
         <button class="tablinks active" onclick="openTab(event, 'Obscene')">Obscene</button>
         <button class="tablinks" onclick="openTab(event, 'Insult')">Insult</button>
         <button class="tablinks" onclick="openTab(event, 'IdentityAttack')">Identity Attack</button>
         <button class="tablinks" onclick="openTab(event, 'Threat')">Threat</button>
         </div> 
-        <div id="Obscene" class="tabcontent" style="display: block;">
+
+        <div id="Obscene" class="tabcontent active" display: block;>
         <iframe src="Assets-ploty/keywordViolationObscene.html" width="100%" height="500" style="border:none;"></iframe>
         </div>
-
+    
         <div id="Insult" class="tabcontent">
         <iframe src="Assets-ploty/keywordViolationInsult.html" width="100%" height="500" style="border:none;"></iframe>
         </div>
@@ -849,7 +850,7 @@ pre code {
         <div id="Threat" class="tabcontent">
         <iframe src="Assets-ploty/keywordViolationThreat.html" width="100%" height="500" style="border:none;"></iframe>
         </div>
-    </div>
+      </div>
 
 
 
