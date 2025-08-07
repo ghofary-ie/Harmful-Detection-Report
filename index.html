@@ -804,7 +804,7 @@ pre code {
 
 
 <div style="max-width: 800px; margin: 20px auto 0 auto; text-align: justify;">
-  <h2 style="text-align: center;">Overview of Detected Violation Types</h2>
+  <h2 style="text-align: left;">Overview of Detected Violation Types</h2>
   <p>
     This visualization displays the distribution of content violations identified during the human review process. 
     Obscene language is the most frequently flagged category, indicating its persistent presence in online interactions. 
@@ -819,6 +819,8 @@ pre code {
     Dynamic Lexicon Updating ensures the moderation system stays effective by continuously refreshing the list of obscene terms using open source intelligence and social media trends. This approach helps capture evolving slang and coded language, improving detection accuracy and community safety.
     </div>
 
+  <div style="max-width: 800px; margin: 20px auto 0 auto; text-align: justify;">
+  <h2 style="text-align: left;">Keyword Sensitive</h2>
   <p>
   Every word carries weight, especially in online spaces where language can uplift or harm. In the effort to detect and moderate toxic content, identifying recurring harmful keywords becomes crucial.
   </p>
@@ -859,33 +861,26 @@ pre code {
       </div>
 
   
+<div style="max-width: 800px; margin: 20px auto 0 auto; text-align: justify;">
+  <h2 style="text-align: left;">Hashtag Engagement Metrics</h2>
+<p>Hashtags serve as powerful markers on social media, highlighting trending topics, communities, and sentiments. By analyzing hashtags related to content flagged for violations, we gain valuable insight into the themes and issues driving engagement, as well as the potential spread of harmful or sensitive material. This analysis not only helps us identify patterns of online behavior but also informs more effective monitoring and moderation strategies.</p>
+ 
+  <div class="tab-wrapper" id="group3">
+        <div class="tab">
+        <button class="tablinks active" onclick="openTab(event, 'Like')">Like</button>
+        <button class="tablinks" onclick="openTab(event, 'Retweet')">Retweet</button>
+      
+        </div> 
 
-  <table border="1" style="border-collapse: collapse; width: 50%; margin: 20px auto;">
-  <thead style="background-color: #f2f2f2;">
-    <tr>
-      <th>Violation Reason</th>
-      <th>Count</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Obscene</td>
-      <td>189</td>
-    </tr>
-    <tr>
-      <td>Insult</td>
-      <td>40</td>
-    </tr>
-    <tr>
-      <td>Identity Attack</td>
-      <td>38</td>
-    </tr>
-    <tr>
-      <td>Threat</td>
-      <td>3</td>
-    </tr>
-  </tbody>
-</table>
+        <div id="Like" class="tabcontent active" display: block;>
+        <iframe src="Assets-ploty/Hashtaglikes_chart.html" width="100%" height="500" style="border:none;"></iframe>
+        </div>
+    
+        <div id="Retweet" class="tabcontent">
+        <iframe src="Assets-ploty/Hashtagretweets_chart.html" width="100%" height="500" style="border:none;"></iframe>
+        </div>
+    </div>
+
 
 
 
