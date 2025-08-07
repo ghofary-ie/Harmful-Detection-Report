@@ -826,35 +826,30 @@ pre code {
   This chart tells a story hidden within our dataset: the most frequently used offensive terms flagged during human review. By mapping these keywords, we gain insight into the language patterns behind online violations — helping us prioritize moderation strategies, train better models, and foster safer digital environments.
   </p>
 
+ 
   <div class="tab-wrapper">
       <div class="tab">
-        <button class="tablinks active" onclick="openTab(event, 'objective')">Obscene</button>
-        <button class="tablinks" onclick="openTab(event, 'background')">Insult</button>
-        <button class="tablinks" onclick="openTab(event, 'workflow')">Identity Attack</button>
-        <button class="tablinks" onclick="openTab(event, 'background')">Threat</button>
+        <button class="tablinks active" onclick="openTab(event, 'Obscene')">Obscene</button>
+        <button class="tablinks" onclick="openTab(event, 'Insult')">Insult</button>
+        <button class="tablinks" onclick="openTab(event, 'IdentityAttack')">Identity Attack</button>
+        <button class="tablinks" onclick="openTab(event, 'Threat')">Threat</button>
         </div> 
-    
-        <div id="Obscene" class="tabcontent active">
+        <div id="Obscene" class="tabcontent" style="display: block;">
         <iframe src="Assets-ploty/keywordViolationObscene.html" width="100%" height="500" style="border:none;"></iframe>
-        </div> 
-  
-        <div id="Insult" class="tabcontent active">
+        </div>
+
+        <div id="Insult" class="tabcontent">
         <iframe src="Assets-ploty/keywordViolationInsult.html" width="100%" height="500" style="border:none;"></iframe>
-        </div> 
-
-        <div id="Identity Attack" class="tabcontent active">
-        <iframe src="Assets-ploty/keywordViolationIdentity Attack.html" width="100%" height="500" style="border:none;"></iframe>
-        </div> 
-     
-        <div id="Threat" class="tabcontent active">
+        </div>
+    
+        <div id="IdentityAttack" class="tabcontent">
+        <iframe src="Assets-ploty/keywordViolationIdentity%20Attack.html" width="100%" height="500" style="border:none;"></iframe>
+        </div>
+    
+        <div id="Threat" class="tabcontent">
         <iframe src="Assets-ploty/keywordViolationThreat.html" width="100%" height="500" style="border:none;"></iframe>
-        </div> 
-  </div> 
-
-
-
-
-  
+        </div>
+    </div>
 
 
 
