@@ -270,10 +270,24 @@ pre code {
       color: #007bff;
     }
 
-  
-
-
   </style>
+  <style>
+  .insight-box {
+    background-color: #fff8dc; /* Light warm yellow (cornsilk) */
+    border-left: 5px solid #d4af37; /* Calm gold accent */
+    color: #5a4a00; /* Dark golden text for readability */
+    padding: 15px 20px;
+    margin: 20px 0;
+    font-size: 16px;
+    line-height: 1.6;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(212, 175, 55, 0.2);
+    font-weight: 600;
+  }
+  </style>
+
+
+  
 </head>
 
 
@@ -794,18 +808,27 @@ pre code {
 
 <!-- this part is about the overview of detection types -->
 
-  
+
 
 <div style="max-width: 800px; margin: 20px auto 0 auto; text-align: justify;">
   <h2 style="text-align: center;">Overview of Detected Violation Types</h2>
   <p>
-
-This data summarizes the most common types of content violations identified after human review. Each category, such as obscene language, insults, threats, and identity attacks represents specific patterns of harmful behavior flagged in the dataset. The counts reflect how often each type of violation was recorded by human evaluators.
-</p>
+    This visualization displays the distribution of content violations identified during the human review process. 
+    Obscene language is the most frequently flagged category, indicating its persistent presence in online interactions. 
+    Insults and identity-based attacks follow closely, suggesting a need for stricter moderation or improved model accuracy in these areas. 
+    Threats, while less common, remain a serious concern due to their potential real-world implications.
+  </p>
 
 <iframe src="Assets-ploty/violation_chart.html" width="100%" height="500" style="border:none;"></iframe>
 
-  
+  <div class="insight-box">
+  <strong>Insight:</strong> 
+  The predominance of obscene language and identity attacks highlights the need for moderation models to adapt continuously. Leveraging OSINT allows us to track evolving variations of obscene words and harmful expressions circulating on social media over time. This ongoing data collection helps models stay current, detecting new patterns of toxic language more effectively and safeguarding online communities.
+  </div>
+
+
+
+
   <table border="1" style="border-collapse: collapse; width: 50%; margin: 20px auto;">
   <thead style="background-color: #f2f2f2;">
     <tr>
