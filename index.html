@@ -172,6 +172,13 @@ pre code {
         Prism.highlightAll();
       }
     }
+
+  <title>Mermaid Diagram</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+
   </script>
   </head>
 
@@ -348,6 +355,360 @@ pre code {
       <p>The dataset includes about 8,000 tweets collected over one week (January 1–7, 2025). Each tweet is an anonymized user comment with details like the time it was posted. The tweets include all kinds of content some normal, some potentially harmful, such as threats, insults, or rude language. The data is cleaned and user privacy is protected. This dataset helps us study harmful content and build tools to detect it. We handle all data carefully and responsibly.</p>
       </div>
 
+      <button class="collapsible">Data and Model Implementation</button>
+      <div class="content">
+      <p>
+        This project implements a full-cycle pipeline to detect and review harmful content on social media using both machine learning models and manual validation. The process reflects a practical content moderation setup, integrating transformer-based models with OSINT-inspired keyword checks and human-in-the-loop evaluation.
+      </p>
+      <h3>1. Data Collection and Preparation</h2>
+      <p>- Dataset: 8,000 tweets from <strong>01–07 January 2025</strong>, sourced from Kaggle for research.<br/>
+      - Includes tweet metadata (location, user ID, engagement metrics).<br/>
+      - Data imported via <code>pandas</code> and deduplicated on tweet text to ensure uniqueness.</p>
+
+          <button class="collapse-btn" onclick="toggleCollapse('step1')">Install Libraries</button>
+          <div id="step1" class="collapsible-content">
+          <pre><code class="language-python">
+
+          !pip install detoxify tqdm transformers datasets torch  
+
+          import pandas as pd                                                      # Data manipulation and analysis with DataFrames
+          import numpy as np                                                       # Numerical operations and array handling
+          import matplotlib.pyplot as plt                                          # Plotting static and interactive visualizations
+          import seaborn as sns                                                    # Statistical data visualization built on matplotlib
+          from sklearn.metrics import classification_report, confusion_matrix      # Model evaluation metrics
+          from detoxify import Detoxify                                            # Pre-trained model for toxic content detection
+          from transformers import pipeline                                        # Access to transformer based NLP models (HuggingFace)
+          from tqdm import tqdm                                                    # Progress bars for loops and iterations
+          </code></pre>
+          </div>
+          <button class="collapse-btn" onclick="toggleCollapse('step1b')">Import Data</button>
+          <div id="step1b" class="collapsible-content">
+          <pre><code class="language-python">
+
+          from google.colab import drive               # To mount Google Drive in Colab
+          import pandas as pd                          
+
+          file_path = '/content/drive/MyDrive/Notebook Twitter Project/Raw-Data-Week-1,Jan-2025.csv'
+
+          df = pd.read_csv(file_path)
+
+          df.head()
+          </code></pre>
+          </div>
+
+          <h3>2. Toxicity Detection using Machine Learning Models</h2>
+          <p>Two pre-trained transformer models were used to score tweets:</p>
+
+          <h3>A. Detoxify (multi-label classifier)</h3>
+          <p>- Outputs scores for: <code>toxicity</code>, <code>severe_toxicity</code>, <code>obscene</code>, <code>threat</code>, <code>insult</code>, <code>identity_attack</code>.<br/>
+          - Tweets with <strong>toxicity &gt; 0.8</strong> flagged for further review.</p>
+
+
+
+
+          <h3>B. Toxic-BERT (binary classifier)</h3>
+          <p>- Classifies tweets as <code>"TOXIC"</code> or <code>"NON_TOXIC"</code>.<br/>
+          - Serves as a cross-check to Detoxify results.</p>
+
+          <button class="collapse-btn" onclick="toggleCollapse('step2a')">Detoxify</button>
+          <div id="step2a" class="collapsible-content">
+          <pre><code class="language-python">
+          from detoxify import Detoxify
+          detoxify_model = Detoxify('original')
+
+          from tqdm import tqdm
+          from detoxify import Detoxify
+          import pandas as pd
+
+          detoxify_model = Detoxify('original')
+
+
+          scores = []
+          for tweet in tqdm(df['tweet'], desc="Scoring tweets"):
+              score = detoxify_model.predict(tweet)
+              scores.append(score)
+
+          scores_df = pd.DataFrame(scores)
+
+          df = pd.concat([df.reset_index(drop=True), scores_df], axis=1)
+
+          df.head()
+
+          toxicity_threshold = 0.8
+
+          df['ml_flagged'] = df['toxicity'] > toxicity_threshold
+
+          print(df['ml_flagged'].value_counts())
+
+          </code></pre>
+          </div>
+
+
+
+
+          <button class="collapse-btn" onclick="toggleCollapse('step2b')">HuggingFace</button>
+          <div id="step2b" class="collapsible-content">
+          <pre><code class="language-python">
+            
+          from transformers import pipeline
+
+          classifier = pipeline("text-classification", model="unitary/toxic-bert")
+
+          sample_text = "I hate you and hope bad things happen to you!"
+          result = classifier(sample_text)
+
+          print(result)
+
+          from transformers import pipeline
+          from tqdm import tqdm
+          import pandas as pd
+
+
+          classifier = pipeline("text-classification", model="unitary/toxic-bert")
+
+
+          toxic_labels = []
+          toxic_scores = []
+
+          for tweet in tqdm(df['tweet'], desc="Cross-checking with Toxic-BERT"):
+              try:
+                  result = classifier(tweet[:512])[0]
+                  toxic_labels.append(result['label'])
+                  toxic_scores.append(result['score'])
+              except Exception as e:
+                  toxic_labels.append("error")
+                  toxic_scores.append(0)
+
+          df['toxicbert_label'] = toxic_labels
+          df['toxicbert_score'] = toxic_scores
+
+          df.head()
+
+          </code></pre>
+          </div>
+
+
+          <h3>3. Human Review</h2>
+          <p> After processing and scoring the tweets with ML models, the results need to be reviewed manually to validate and improve accuracy. This step saves the current dataset, including model predictions and metadata as a timestamped CSV file in my Google Drive. This makes it easy to share and track different versions of the data for human annotation and further analysis.</p>
+
+
+          <button class="collapse-btn" onclick="toggleCollapse('step3')">Export</button>
+          <div id="step3" class="collapsible-content" style="display:none;">
+          <pre><code class="language-python">
+            import datetime                                                               # Saves the processed DataFrame as a CSV file with a timestamp in the filename (optional)
+
+          timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+          output_path = f'/content/drive/MyDrive/Notebook Twitter Project/HumanReview{timestamp}.csv'
+
+          df.to_csv(output_path, index=False)
+          print(f"Saved processed data to {output_path}")
+          </code></pre>
+          </div>
+
+          <h3>4. Manual Validation Process</h3>
+
+
+          <p> In this step, I focus on validating the model’s harmful content predictions by performing a manual review grounded in OSINT (Open Source Intelligence) principles. I first filter tweets that the Detoxify and HuggingFace models flagged as harmful, then review each tweet to confirm whether it truly violates community guidelines (X Rules and Policies). The manual judgment categorizes tweets as either "harmful" or "safe" in a Final Review column.</p>
+
+          <p> The criteria for this review align with specific sections of the community rules and policies, focusing on severe toxicity, obscenity, threat, insult, and identity attack. Leveraging OSINT techniques, such as keyword analysis, linguistic pattern recognition, and contextual assessment, helps ensure thorough validation beyond automated detection. This approach helps improve overall accuracy by identifying false positives and false negatives, which the models alone might miss or misclassify.</p>
+
+          <p> After reviewing tweets flagged as harmful by the models, the next step involves manually checking tweets marked as safe by searching for critical keywords and linguistic markers identified through OSINT research terms like "Nigga", "Porn", "Child", "Teenager", and "Sex" that commonly appear in harmful content. This targeted keyword search is informed by ongoing OSINT monitoring to detect emerging threats and evolving harmful language patterns.</p>
+
+          <p> By combining automated filtering with OSINT supported human insight, this process ensures a more comprehensive and adaptive detection system. It effectively closes gaps where models may underperform, providing a robust defense against harmful content.</p>
+
+
+          <button class="collapse-btn" onclick="toggleCollapse('step4')">Chartflow</button>
+          <div id="step4" class="collapsible-content" style="display:none;">
+          <pre><code>
+
+              <div class="container">
+                  <div class="step">
+                    <div class="step-icon">📥</div>
+                    Collect tweets<br>from dataset
+                  </div>
+
+                  <div class="arrow-down">↓</div>
+
+                  <div class="step">
+                    <div class="step-icon">🧠</div>
+                    Run <strong>Detoxify</strong> & <strong>HF models</strong><br>
+                    → classify as <span class="highlight">Harmful</span> or <span class="safe">Safe</span>
+                  </div>
+
+                  <div class="arrow-down">↓</div>
+
+                  <div class="branch-container">
+                    <!-- Harmful Branch -->
+                    <div class="branch">
+                      <div class="arrow-branch">↙</div>
+                      <div class="step">
+                        <div class="step-icon">👀</div>
+                        <strong>Harmful tweets</strong><br>
+                        → Manual review (X Guidelines)<br>
+                        → Final label: <span class="highlight">Harmful</span> / <span class="safe">Safe</span>
+                      </div>
+
+                      <div class="arrow-down">↓</div>
+
+                      <div class="step">
+                        <div class="step-icon">📊</div>
+                        Compare prediction vs. human:<br>
+                        • ✅ TP<br>
+                        • ❌ FP / FN<br>
+                        → Improve model accuracy
+                      </div>
+                    </div>
+
+                    <!-- Safe Branch -->
+                    <div class="branch">
+                      <div class="arrow-branch">↘</div>
+                      <div class="step">
+                        <div class="step-icon">🔍</div>
+                        <strong>Safe tweets</strong><br>
+                        → Keyword search (e.g. "Nigga", "Teen", etc.)<br>
+                        → Manual review<br>
+                        → Final label: <span class="highlight">Harmful</span> / <span class="safe">Safe</span>
+                      </div>
+
+                      <div class="arrow-down">↓</div>
+
+                      <div class="step">
+                        <div class="step-icon">📊</div>
+                        Compare prediction vs. human:<br>
+                        • ✅ TP<br>
+                        • ❌ FP / FN<br>
+                        → Improve model accuracy
+                      </div>
+                    </div>
+                  </div>
+                </div>
+          </code></pre>
+          </div>
+
+
+          <h3>5. Model Evaluation Against Human Judgment</h2>
+
+          <p> This section compares the harmful content labels predicted by the machine learning models with those assigned through manual human review. It evaluates model accuracy by identifying matches, false positives (model flagged safe content as harmful), and false negatives (model missed harmful content). This comparison not only highlights areas for model improvement but also reinforces the value of OSINT-informed human validation in maintaining effective, proactive content moderation.</p>
+
+          <button class="collapse-btn" onclick="toggleCollapse('step5')">Detail Code</button>
+          <div id="step5" class="collapsible-content">
+          <pre><code class="language-python">
+
+
+          # Load the raw model predictions and human review datasets from Google Drive
+
+          import pandas as pd
+          raw_path = '/content/drive/MyDrive/Notebook Twitter Project/RawData.csv'             
+          review_path = '/content/drive/MyDrive/Notebook Twitter Project/HumanReview20250721_230147 - Clean Data.csv'
+
+          df_raw = pd.read_csv(raw_path)
+          df_review = pd.read_csv(review_path)
+
+
+          # Clean column names by removing whitespace and converting to lowercase for consistent merging
+
+          df_raw.columns = df_raw.columns.str.strip().str.lower()                                
+          df_review.columns = df_review.columns.str.strip().str.lower()
+
+
+          #Merges the two datasets using the unique identifier id, keeping only the common rows (how='inner').
+
+          df = pd.merge(df_raw, df_review[['id', 'human review']], on='id', how='inner')
+
+
+          #Cleans and standardizes the label text to avoid mismatch during comparison and maps the model’s harmful/not harmful labels to human review’s violation/safe.
+
+          df['transformer_harmful'] = df['transformer_harmful'].str.lower().str.strip()
+          df['human review'] = df['human review'].str.lower().str.strip()
+
+          df['transformer_harmful'] = df['transformer_harmful'].replace({
+              'harmful': 'violation',
+              'not harmful': 'safe'
+          })
+
+
+          #This part creates three new columns in the dataframe to help analyze the agreement between the model's predictions and the human review labels, These columns are key to quantitatively assessing the model's errors and accuracy by breaking down where it agrees or disagrees with human judgment.
+
+          df['match'] = df['transformer_harmful'] == df['human review']                          
+          df['false_positive'] = (df['human review'] == 'safe') & (df['transformer_harmful'] == 'violation')
+          df['false_negative'] = (df['human review'] == 'violation') & (df['transformer_harmful'] == 'safe')
+
+
+          #Displays the total number of evaluated samples and counts of correct predictions and errors.
+
+          print(f"Total Samples: {len(df)}")                                                      
+          print("Evaluation Summary:")
+          print(f"Correct Matches: {df['match'].sum()}")
+          print(f"False Positives (Model says Violation, human says Safe): {df['false_positive'].sum()}")
+          print(f"False Negatives (Model says Safe, human says Violation): {df['false_negative'].sum()}")
+
+
+          #Saves the dataframe including evaluation results and combined dataset with evaluation columns back to Google Drive for record-keeping and further analysis
+
+          output_path = '/content/drive/MyDrive/Notebook Twitter Project/Final_evaluation_result.csv'
+          df.to_csv(output_path, index=False)
+          print(f"\n Saved to: {output_path}")
+
+
+          #Filters and displays tweets where the model made incorrect predictions for deeper manual inspection.
+
+          false_positives = df[df['false_positive']]
+          display(false_positives[['tweet', 'transformer_harmful', 'human review']])
+
+          false_negatives = df[df['false_negative']]
+          display(false_negatives[['tweet', 'transformer_harmful', 'human review']])
+
+
+          #Filters and displays tweets where the model made incorrect predictions for deeper manual inspection and to Show example false positives and false negatives with relevant columns to inspect the errors manually
+
+          false_positives = df[df['false_positive']]
+          display(false_positives[['tweet', 'transformer_harmful', 'human review']])
+
+          false_negatives = df[df['false_negative']]
+          display(false_negatives[['tweet', 'transformer_harmful', 'human review']])
+
+          </code></pre>
+          </div>
+
+
+
+
+          <script>
+          function toggleCollapse(id) {
+            var content = document.getElementById(id);
+            if (content.style.display === "block") {
+              content.style.display = "none";
+            } else {
+              content.style.display = "block";
+            }
+          }
+          </script>
+
+          </body>
+          </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+
+
+
        <style>
     .collapsible {
       background-color: #eee;
@@ -423,351 +784,10 @@ pre code {
       evt.currentTarget.classList.add('active');
     }
   </script>
-</body>
-</html>
 
-
-
-
-<!-- this part is about the Data Implementation -->
-
-<div style="max-width: 800px; margin: 20px auto 0 auto; text-align: justify;">
-  <h2 style="text-align: left;">Data and Model Implementation</h2>
-
-<p>This project implements a full-cycle pipeline to detect and review harmful content on social media using both machine learning models and manual validation. The process reflects a practical content moderation setup, integrating transformer-based models with OSINT-inspired keyword checks and human-in-the-loop evaluation.</p>
-
-<h3>1. Data Collection and Preparation</h2>
-<p>- Dataset: 8,000 tweets from <strong>01–07 January 2025</strong>, sourced from Kaggle for research.<br/>
-- Includes tweet metadata (location, user ID, engagement metrics).<br/>
-- Data imported via <code>pandas</code> and deduplicated on tweet text to ensure uniqueness.</p>
-
-
-
-<button class="collapse-btn" onclick="toggleCollapse('step1')">Install Libraries</button>
-<div id="step1" class="collapsible-content">
-<pre><code class="language-python">
-!pip install detoxify tqdm transformers datasets torch  
-
-import pandas as pd                                                      # Data manipulation and analysis with DataFrames
-import numpy as np                                                       # Numerical operations and array handling
-import matplotlib.pyplot as plt                                          # Plotting static and interactive visualizations
-import seaborn as sns                                                    # Statistical data visualization built on matplotlib
-from sklearn.metrics import classification_report, confusion_matrix      # Model evaluation metrics
-from detoxify import Detoxify                                            # Pre-trained model for toxic content detection
-from transformers import pipeline                                        # Access to transformer based NLP models (HuggingFace)
-from tqdm import tqdm                                                    # Progress bars for loops and iterations
-</code></pre>
-</div>
-
-
-<button class="collapse-btn" onclick="toggleCollapse('step1b')">Import Data</button>
-<div id="step1b" class="collapsible-content">
-<pre><code class="language-python">
-
-from google.colab import drive               # To mount Google Drive in Colab
-import pandas as pd                          
-
-file_path = '/content/drive/MyDrive/Notebook Twitter Project/Raw-Data-Week-1,Jan-2025.csv'
-
-df = pd.read_csv(file_path)
-
-df.head()
-</code></pre>
-</div>
-
-
-
-<h3>2. Toxicity Detection using Machine Learning Models</h2>
-<p>Two pre-trained transformer models were used to score tweets:</p>
-
-<h3>A. Detoxify (multi-label classifier)</h3>
-<p>- Outputs scores for: <code>toxicity</code>, <code>severe_toxicity</code>, <code>obscene</code>, <code>threat</code>, <code>insult</code>, <code>identity_attack</code>.<br/>
-- Tweets with <strong>toxicity &gt; 0.8</strong> flagged for further review.</p>
-
-
-
-
-<h3>B. Toxic-BERT (binary classifier)</h3>
-<p>- Classifies tweets as <code>"TOXIC"</code> or <code>"NON_TOXIC"</code>.<br/>
-- Serves as a cross-check to Detoxify results.</p>
-
-<button class="collapse-btn" onclick="toggleCollapse('step2a')">Detoxify</button>
-<div id="step2a" class="collapsible-content">
-<pre><code class="language-python">
-from detoxify import Detoxify
-detoxify_model = Detoxify('original')
-
-from tqdm import tqdm
-from detoxify import Detoxify
-import pandas as pd
-
-detoxify_model = Detoxify('original')
-
-
-scores = []
-for tweet in tqdm(df['tweet'], desc="Scoring tweets"):
-    score = detoxify_model.predict(tweet)
-    scores.append(score)
-
-scores_df = pd.DataFrame(scores)
-
-df = pd.concat([df.reset_index(drop=True), scores_df], axis=1)
-
-df.head()
-
-toxicity_threshold = 0.8
-
-df['ml_flagged'] = df['toxicity'] > toxicity_threshold
-
-print(df['ml_flagged'].value_counts())
-
-</code></pre>
-</div>
-
-
-
-
-<button class="collapse-btn" onclick="toggleCollapse('step2b')">HuggingFace</button>
-<div id="step2b" class="collapsible-content">
-<pre><code class="language-python">
-  
-from transformers import pipeline
-
-classifier = pipeline("text-classification", model="unitary/toxic-bert")
-
-sample_text = "I hate you and hope bad things happen to you!"
-result = classifier(sample_text)
-
-print(result)
-
-from transformers import pipeline
-from tqdm import tqdm
-import pandas as pd
-
-
-classifier = pipeline("text-classification", model="unitary/toxic-bert")
-
-
-toxic_labels = []
-toxic_scores = []
-
-for tweet in tqdm(df['tweet'], desc="Cross-checking with Toxic-BERT"):
-    try:
-        result = classifier(tweet[:512])[0]
-        toxic_labels.append(result['label'])
-        toxic_scores.append(result['score'])
-    except Exception as e:
-        toxic_labels.append("error")
-        toxic_scores.append(0)
-
-df['toxicbert_label'] = toxic_labels
-df['toxicbert_score'] = toxic_scores
-
-df.head()
-
-</code></pre>
-</div>
-
-
-<h3>3. Human Review</h2>
-<p> After processing and scoring the tweets with ML models, the results need to be reviewed manually to validate and improve accuracy. This step saves the current dataset, including model predictions and metadata as a timestamped CSV file in my Google Drive. This makes it easy to share and track different versions of the data for human annotation and further analysis.</p>
-
-
-<button class="collapse-btn" onclick="toggleCollapse('step3')">Export</button>
-<div id="step3" class="collapsible-content" style="display:none;">
-<pre><code class="language-python">
-  import datetime                                                               # Saves the processed DataFrame as a CSV file with a timestamp in the filename (optional)
-
-timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-output_path = f'/content/drive/MyDrive/Notebook Twitter Project/HumanReview{timestamp}.csv'
-
-df.to_csv(output_path, index=False)
-print(f"Saved processed data to {output_path}")
-</code></pre>
-</div>
-
-<h3>4. Manual Validation Process</h3>
-
-
-<p> In this step, I focus on validating the model’s harmful content predictions by performing a manual review grounded in OSINT (Open Source Intelligence) principles. I first filter tweets that the Detoxify and HuggingFace models flagged as harmful, then review each tweet to confirm whether it truly violates community guidelines (X Rules and Policies). The manual judgment categorizes tweets as either "harmful" or "safe" in a Final Review column.</p>
-
-<p> The criteria for this review align with specific sections of the community rules and policies, focusing on severe toxicity, obscenity, threat, insult, and identity attack. Leveraging OSINT techniques, such as keyword analysis, linguistic pattern recognition, and contextual assessment, helps ensure thorough validation beyond automated detection. This approach helps improve overall accuracy by identifying false positives and false negatives, which the models alone might miss or misclassify.</p>
-
-<p> After reviewing tweets flagged as harmful by the models, the next step involves manually checking tweets marked as safe by searching for critical keywords and linguistic markers identified through OSINT research terms like "Nigga", "Porn", "Child", "Teenager", and "Sex" that commonly appear in harmful content. This targeted keyword search is informed by ongoing OSINT monitoring to detect emerging threats and evolving harmful language patterns.</p>
-
-<p> By combining automated filtering with OSINT supported human insight, this process ensures a more comprehensive and adaptive detection system. It effectively closes gaps where models may underperform, providing a robust defense against harmful content.</p>
-
-
-<button class="collapse-btn" onclick="toggleCollapse('step4')">Chartflow</button>
-<div id="step4" class="collapsible-content" style="display:none;">
-<pre><code>
-
-    <div class="container">
-        <div class="step">
-          <div class="step-icon">📥</div>
-          Collect tweets<br>from dataset
-        </div>
-
-        <div class="arrow-down">↓</div>
-
-        <div class="step">
-          <div class="step-icon">🧠</div>
-          Run <strong>Detoxify</strong> & <strong>HF models</strong><br>
-          → classify as <span class="highlight">Harmful</span> or <span class="safe">Safe</span>
-        </div>
-
-        <div class="arrow-down">↓</div>
-
-        <div class="branch-container">
-          <!-- Harmful Branch -->
-          <div class="branch">
-            <div class="arrow-branch">↙</div>
-            <div class="step">
-              <div class="step-icon">👀</div>
-              <strong>Harmful tweets</strong><br>
-              → Manual review (X Guidelines)<br>
-              → Final label: <span class="highlight">Harmful</span> / <span class="safe">Safe</span>
-            </div>
-
-            <div class="arrow-down">↓</div>
-
-            <div class="step">
-              <div class="step-icon">📊</div>
-              Compare prediction vs. human:<br>
-              • ✅ TP<br>
-              • ❌ FP / FN<br>
-              → Improve model accuracy
-            </div>
-          </div>
-
-          <!-- Safe Branch -->
-          <div class="branch">
-            <div class="arrow-branch">↘</div>
-            <div class="step">
-              <div class="step-icon">🔍</div>
-              <strong>Safe tweets</strong><br>
-              → Keyword search (e.g. "Nigga", "Teen", etc.)<br>
-              → Manual review<br>
-              → Final label: <span class="highlight">Harmful</span> / <span class="safe">Safe</span>
-            </div>
-
-            <div class="arrow-down">↓</div>
-
-            <div class="step">
-              <div class="step-icon">📊</div>
-              Compare prediction vs. human:<br>
-              • ✅ TP<br>
-              • ❌ FP / FN<br>
-              → Improve model accuracy
-            </div>
-          </div>
-        </div>
-      </div>
-</code></pre>
-</div>
-
-
-<h3>5. Model Evaluation Against Human Judgment</h2>
-
-<p> This section compares the harmful content labels predicted by the machine learning models with those assigned through manual human review. It evaluates model accuracy by identifying matches, false positives (model flagged safe content as harmful), and false negatives (model missed harmful content). This comparison not only highlights areas for model improvement but also reinforces the value of OSINT-informed human validation in maintaining effective, proactive content moderation.</p>
-
-<button class="collapse-btn" onclick="toggleCollapse('step5')">Detail Code</button>
-<div id="step5" class="collapsible-content">
-<pre><code class="language-python">
-
-
-# Load the raw model predictions and human review datasets from Google Drive
-
-import pandas as pd
-raw_path = '/content/drive/MyDrive/Notebook Twitter Project/RawData.csv'             
-review_path = '/content/drive/MyDrive/Notebook Twitter Project/HumanReview20250721_230147 - Clean Data.csv'
-
-df_raw = pd.read_csv(raw_path)
-df_review = pd.read_csv(review_path)
-
-
-# Clean column names by removing whitespace and converting to lowercase for consistent merging
-
-df_raw.columns = df_raw.columns.str.strip().str.lower()                                
-df_review.columns = df_review.columns.str.strip().str.lower()
-
-
-#Merges the two datasets using the unique identifier id, keeping only the common rows (how='inner').
-
-df = pd.merge(df_raw, df_review[['id', 'human review']], on='id', how='inner')
-
-
-#Cleans and standardizes the label text to avoid mismatch during comparison and maps the model’s harmful/not harmful labels to human review’s violation/safe.
-
-df['transformer_harmful'] = df['transformer_harmful'].str.lower().str.strip()
-df['human review'] = df['human review'].str.lower().str.strip()
-
-df['transformer_harmful'] = df['transformer_harmful'].replace({
-    'harmful': 'violation',
-    'not harmful': 'safe'
-})
-
-
-#This part creates three new columns in the dataframe to help analyze the agreement between the model's predictions and the human review labels, These columns are key to quantitatively assessing the model's errors and accuracy by breaking down where it agrees or disagrees with human judgment.
-
-df['match'] = df['transformer_harmful'] == df['human review']                          
-df['false_positive'] = (df['human review'] == 'safe') & (df['transformer_harmful'] == 'violation')
-df['false_negative'] = (df['human review'] == 'violation') & (df['transformer_harmful'] == 'safe')
-
-
-#Displays the total number of evaluated samples and counts of correct predictions and errors.
-
-print(f"Total Samples: {len(df)}")                                                      
-print("Evaluation Summary:")
-print(f"Correct Matches: {df['match'].sum()}")
-print(f"False Positives (Model says Violation, human says Safe): {df['false_positive'].sum()}")
-print(f"False Negatives (Model says Safe, human says Violation): {df['false_negative'].sum()}")
-
-
-#Saves the dataframe including evaluation results and combined dataset with evaluation columns back to Google Drive for record-keeping and further analysis
-
-output_path = '/content/drive/MyDrive/Notebook Twitter Project/Final_evaluation_result.csv'
-df.to_csv(output_path, index=False)
-print(f"\n Saved to: {output_path}")
-
-
-#Filters and displays tweets where the model made incorrect predictions for deeper manual inspection.
-
-false_positives = df[df['false_positive']]
-display(false_positives[['tweet', 'transformer_harmful', 'human review']])
-
-false_negatives = df[df['false_negative']]
-display(false_negatives[['tweet', 'transformer_harmful', 'human review']])
-
-
-#Filters and displays tweets where the model made incorrect predictions for deeper manual inspection and to Show example false positives and false negatives with relevant columns to inspect the errors manually
-
-false_positives = df[df['false_positive']]
-display(false_positives[['tweet', 'transformer_harmful', 'human review']])
-
-false_negatives = df[df['false_negative']]
-display(false_negatives[['tweet', 'transformer_harmful', 'human review']])
-
-</code></pre>
-</div>
-
-
-
-
-<script>
-function toggleCollapse(id) {
-  var content = document.getElementById(id);
-  if (content.style.display === "block") {
-    content.style.display = "none";
-  } else {
-    content.style.display = "block";
-  }
-}
-</script>
 
 </body>
 </html>
-
 
 
 
