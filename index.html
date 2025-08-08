@@ -94,6 +94,37 @@
       if (!isOpen) {
         Prism.highlightAll();
       }
+      // Recompute uniform heights after content expands/collapses
+      setUniformTabHeights();
+    }
+
+    // Compute and apply the same min-height to all .tabcontent within each .tab-wrapper
+    function setUniformTabHeights() {
+      const wrappers = document.querySelectorAll('.tab-wrapper');
+      wrappers.forEach(wrapper => {
+        const contents = Array.from(wrapper.querySelectorAll('.tabcontent'));
+        if (contents.length === 0) return;
+        // Reset min-heights to allow natural measurement
+        contents.forEach(el => { el.style.minHeight = ''; });
+        let max = 0;
+        contents.forEach(el => {
+          const computed = getComputedStyle(el);
+          const wasHidden = computed.display === 'none';
+          const prevDisplay = el.style.display;
+          const prevVisibility = el.style.visibility;
+          if (wasHidden) {
+            el.style.visibility = 'hidden';
+            el.style.display = 'block';
+          }
+          max = Math.max(max, el.scrollHeight);
+          if (wasHidden) {
+            el.style.display = prevDisplay || '';
+            el.style.visibility = prevVisibility || '';
+          }
+        });
+        const minHeight = max + 'px';
+        contents.forEach(el => { el.style.minHeight = minHeight; });
+      });
     }
 
     // Scoped tab switching within the nearest .tab-wrapper
@@ -107,6 +138,8 @@
       const target = wrapper.querySelector('#' + CSS.escape(tabId));
       if (target) target.classList.add('active');
       evt.currentTarget.classList.add('active');
+      // Keep heights consistent when switching
+      setUniformTabHeights();
     }
 
     // Initialize animated collapsibles and Prism on load
@@ -121,9 +154,13 @@
           } else {
             content.style.maxHeight = content.scrollHeight + 'px';
           }
+          // Recompute heights after animated section changes
+          setUniformTabHeights();
         });
       });
       Prism.highlightAll();
+      setUniformTabHeights();
+      window.addEventListener('resize', setUniformTabHeights);
     });
   </script>
 </head>
