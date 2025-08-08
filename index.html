@@ -94,7 +94,7 @@
 
     /* Simple show/hide code sections */
     .collapse-btn { display: block; margin: 8px 0; padding: 6px 0; font-size: 14px; background: transparent; color: var(--brand-strong); border: none; border-radius: 0; cursor: pointer; text-align: left; box-shadow: none; font-weight: 700; }
-    .collapse-btn::before { content: "> "; color: var(--muted); }
+    .collapse-btn::before { content: "> "; color: var(--brand-strong); }
     .collapse-btn:hover { text-decoration: underline; }
 
     .collapsible-content { display: none; padding: 8px 0 12px 18px; margin-top: 2px; border: none; border-radius: 0; width: 100%; overflow: auto; max-height: 400px; overflow-wrap: break-word; background: transparent; }
@@ -157,18 +157,22 @@
     // Show/hide content blocks by id (used by .collapse-btn)
     function toggleCollapse(id) {
       const content = document.getElementById(id);
-      const isOpen = content && content.style.display === 'block';
       if (!content) return false;
+      const container = content.parentElement; // the section that grows
+      const beforeTop = container.getBoundingClientRect().top;
+
+      const isOpen = content.style.display === 'block';
       content.style.display = isOpen ? 'none' : 'block';
-      if (!isOpen) {
-        Prism.highlightAll();
-      }
+      if (!isOpen) Prism.highlightAll();
+
       // Recompute uniform heights after content expands/collapses
       setUniformTabHeights();
-      // Keep viewport anchored near the clicked section
-      const trigger = document.querySelector(`[onclick="toggleCollapse('${id}')"]`);
-      if (trigger) {
-        trigger.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+
+      // Lock the top edge of the growing container to its previous screen position
+      const afterTop = container.getBoundingClientRect().top;
+      const delta = afterTop - beforeTop;
+      if (delta !== 0) {
+        window.scrollBy({ top: delta, left: 0, behavior: 'instant' });
       }
       return false;
     }
