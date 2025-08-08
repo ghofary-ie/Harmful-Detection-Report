@@ -151,6 +151,12 @@
     .toc a:hover { text-decoration: underline; opacity: 0.9; }
     .toc .group-title { margin-top: 10px; font-weight: 700; font-size: 12px; color: var(--muted); }
     @media (max-width: 1080px) { .layout { grid-template-columns: 1fr; } .toc { display: none; } }
+
+    /* Metrics table */
+    .metrics-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .metrics-table th, .metrics-table td { border: 1px solid var(--divider); padding: 8px 10px; text-align: left; }
+    .metrics-table thead th { background: rgba(6,182,212,0.12); }
+    .metrics-table tfoot td { font-weight: 700; }
   </style>
 
   <script>
@@ -602,6 +608,47 @@ false_negatives = df[df['false_negative']]
         <!-- Interactive Violation Map -->
         <h2 id="map">🌍 Interactive Violation Map</h2>
         <iframe src="violation_map.html" style="width: 100%; height: 600px; border: none;"></iframe>
+
+        <!-- Quantitative Metrics: Model Performance Evaluation -->
+        <div id="metrics" class="glass-section" style="margin: 32px auto 0 auto;">
+          <h2 style="text-align: left;">Quantitative Metrics: Model Performance Evaluation</h2>
+          <p>This section evaluates the performance of the transformer model against human judgment using standard metrics.</p>
+          <p><strong>Precision</strong>: Measures the proportion of tweets labeled as violations by the model that are actual violations according to human review.</p>
+          <p><strong>Recall</strong>: Measures the proportion of actual violations (per human review) that the model correctly identifies.</p>
+          <p><strong>F1-score</strong>: The harmonic mean of precision and recall, providing a balanced assessment of the model’s accuracy in detecting violations.</p>
+          <p><strong>Accuracy</strong>: The overall percentage of tweets correctly classified by the model. This metric is less informative when the dataset is imbalanced, as in this case.</p>
+
+          <h3 style="margin-top: 14px;">Performance Results</h3>
+          <table class="metrics-table" aria-label="Model performance metrics">
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1-Score</th>
+                <th>Support</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Safe</td><td>1.00</td><td>0.95</td><td>0.97</td><td>7805</td>
+              </tr>
+              <tr>
+                <td>Violation</td><td>0.32</td><td>0.94</td><td>0.47</td><td>195</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>Overall Accuracy</td><td></td><td></td><td>0.95</td><td>8000</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <p style="margin-top: 12px;">The model demonstrates excellent precision and recall in classifying safe tweets, correctly identifying 95% of them.</p>
+          <p>For violation tweets, the model achieves a high recall of 94%, indicating it captures most of the harmful content. However, precision is relatively low at 32%, meaning the model generates a significant number of false positives.</p>
+          <p>The overall accuracy is 95%, driven primarily by the large volume of safe tweets in the dataset.</p>
+        </div>
+
       </main>
 
       <aside class="toc">
