@@ -93,7 +93,7 @@
     .content p { margin: 10px 0; font-size: 14px; }
 
     /* Simple show/hide code sections */
-    .collapse-btn { display: block; margin: 8px 0; padding: 6px 0; font-size: 14px; background: transparent; color: #0b1324; border: none; border-radius: 0; cursor: pointer; text-align: left; box-shadow: none; }
+    .collapse-btn { display: block; margin: 8px 0; padding: 6px 0; font-size: 14px; background: transparent; color: var(--brand-strong); border: none; border-radius: 0; cursor: pointer; text-align: left; box-shadow: none; font-weight: 700; }
     .collapse-btn::before { content: "> "; color: var(--muted); }
     .collapse-btn:hover { text-decoration: underline; }
 
@@ -158,13 +158,19 @@
     function toggleCollapse(id) {
       const content = document.getElementById(id);
       const isOpen = content && content.style.display === 'block';
-      if (!content) return;
+      if (!content) return false;
       content.style.display = isOpen ? 'none' : 'block';
       if (!isOpen) {
         Prism.highlightAll();
       }
       // Recompute uniform heights after content expands/collapses
       setUniformTabHeights();
+      // Keep viewport anchored near the clicked section
+      const trigger = document.querySelector(`[onclick="toggleCollapse('${id}')"]`);
+      if (trigger) {
+        trigger.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+      }
+      return false;
     }
 
     // Compute and apply the same min-height to all .tabcontent within each .tab-wrapper
@@ -221,7 +227,7 @@
     // Initialize animated collapsibles and Prism on load
     document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.collapsible').forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation();
           button.classList.toggle('active-collapsible');
           const content = button.nextElementSibling;
           if (!content) return;
