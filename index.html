@@ -476,7 +476,13 @@ print(f"Saved processed data to {output_path}")</code></pre>
 
             <h3>5. Model Evaluation Against Human Judgment</h3>
             <p>This section compares the harmful content labels predicted by the machine learning models with those assigned through manual human review. It evaluates model accuracy by identifying matches, false positives (model flagged safe content as harmful), and false negatives (model missed harmful content). This comparison not only highlights areas for model improvement but also reinforces the value of OSINT-informed human validation in maintaining effective, proactive content moderation.</p>
-
+            <ul>
+              <li><strong>Precision</strong>: Of tweets the model labels as violations, the share that are true violations per human review.</li>
+              <li><strong>Recall</strong>: Of all true violations per human review, the share the model correctly flags.</li>
+              <li><strong>F1-score</strong>: Harmonic mean of precision and recall, balancing both.</li>
+              <li><strong>Accuracy</strong>: Overall share of correctly classified tweets; less informative with class imbalance.</li>
+            </ul>
+            
             <button class="collapse-btn" onclick="toggleCollapse('step5')">Detail Code</button>
             <div id="step5" class="collapsible-content glass">
 <pre><code class="language-python"># Load the raw model predictions and human review datasets from Google Drive
