@@ -13,74 +13,128 @@
   <style>
     /* Layout & Typography */
     :root {
-      --max-width: 960px;
-      --radius: 8px;
-      --border: 1px solid #ccc;
-      --brand: #007bff;
+      --max-width: 1000px;
+      --radius: 14px;
+      --brand: #60a5fa;             /* soft blue */
+      --brand-strong: #3b82f6;      /* iOS-like accent */
+      --text: #e5e7eb;              /* light gray text */
+      --muted: #cbd5e1;             /* muted text */
+      --divider: rgba(255, 255, 255, 0.18);
+      --glass: rgba(255, 255, 255, 0.06);
+      --glass-strong: rgba(255, 255, 255, 0.12);
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     }
 
     * { box-sizing: border-box; }
 
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      color: #333;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
       margin: 0;
-      padding: 20px;
+      padding: 28px;
       max-width: var(--max-width);
       margin-left: auto;
       margin-right: auto;
-      line-height: 1.6;
+      line-height: 1.7;
+      /* Grey glass background */
+      background:
+        radial-gradient(1200px 600px at 0% 0%, #2b2f37 0%, transparent 60%),
+        radial-gradient(900px 500px at 100% 0%, #3a3f48 0%, transparent 60%),
+        radial-gradient(1000px 600px at 50% 100%, #1f232b 0%, transparent 60%),
+        linear-gradient(180deg, #1a1e24 0%, #23272f 100%);
+      background-attachment: fixed;
     }
 
-    h1 { text-align: center; margin: 0 0 0.75em; }
-    h2 { font-size: 20px; text-align: center; margin: 2em 0 0.75em; }
-    h3 { font-size: 16px; margin: 1.25em 0 0.5em; }
-    p, ul { font-size: 15px; text-align: justify; }
+    h1 { text-align: center; margin: 0 0 0.6em; letter-spacing: 0.3px; font-weight: 800; }
+    h2 { font-size: 20px; text-align: center; margin: 1.6em 0 0.6em; color: #eef2ff; }
+    h3 { font-size: 16px; margin: 1.25em 0 0.5em; color: var(--text); }
+    p, ul { font-size: 15px; color: var(--text); text-align: justify; }
+
+    /* Glass utility */
+    .glass {
+      background: var(--glass);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+    }
+
+    .glass-strong { background: var(--glass-strong); }
 
     /* Tabs */
     .tab-wrapper { margin: 28px auto 0 auto; }
-    .tab { display: flex; width: 100%; border: var(--border); border-bottom: none; background-color: #e9e9e9; border-radius: 8px 8px 0 0; overflow: hidden; }
-    .tab button { flex: 1; background: inherit; border: none; outline: none; cursor: pointer; padding: 12px 8px; transition: background-color 0.3s ease; border-right: var(--border); font-weight: bold; font-size: 16px; display: flex; justify-content: center; align-items: center; gap: 6px; white-space: nowrap; line-height: 1.2; }
-    .tab button:last-child { border-right: none; }
-    .tab button.active { background-color: #fff; border-bottom: 2px solid #fff; }
+    .tab {
+      display: flex; width: 100%; border-radius: var(--radius) var(--radius) 0 0; overflow: hidden;
+    }
+    .tab.glass { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
 
-    .tabcontent { display: none; padding: 20px; border: var(--border); border-top: none; background-color: #fff; border-radius: 0 0 var(--radius) var(--radius); width: 100%; }
+    .tab button {
+      flex: 1; background: transparent; border: none; outline: none; cursor: pointer; padding: 12px 10px;
+      transition: background-color 0.25s ease, color 0.25s ease, transform 0.05s ease;
+      font-weight: 700; font-size: 15px; display: flex; justify-content: center; align-items: center; gap: 8px;
+      color: var(--muted);
+    }
+    .tab button:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .tab button.active { background: rgba(255,255,255,0.16); color: #fff; }
+
+    .tabcontent {
+      display: none; padding: 20px; border-radius: 0 0 var(--radius) var(--radius); width: 100%;
+    }
     .tabcontent.active { display: block; }
 
-    .tabcontent img { display: block; margin: 1em auto; max-width: 50%; border-radius: 8px; height: auto; }
+    .tabcontent img { display: block; margin: 1em auto; max-width: 50%; border-radius: 10px; height: auto; border: 1px solid var(--divider); }
 
     /* Collapsible (animated content sections) */
-    .collapsible { background-color: #eee; color: #444; cursor: pointer; padding: 10px 18px; width: 100%; border: none; text-align: left; outline: none; font-size: 16px; margin-top: 15px; border-radius: 5px; transition: background-color 0.3s ease; }
-    .collapsible:hover { background-color: #ddd; }
-    .active-collapsible, .collapsible:active { background-color: #ccc; }
+    .collapsible { background: transparent; color: #fff; cursor: pointer; padding: 12px 16px; width: 100%; border: 1px solid var(--divider); text-align: left; outline: none; font-size: 16px; margin-top: 15px; border-radius: 10px; transition: background-color 0.25s ease; }
+    .collapsible:hover { background: rgba(255,255,255,0.08); }
+    .active-collapsible, .collapsible:active { background: rgba(255,255,255,0.12); }
 
-    .content { padding: 0 18px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background-color: #fff; border-left: var(--border); border-right: var(--border); border-bottom: var(--border); border-radius: 0 0 5px 5px; }
+    .content { padding: 0 18px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease; border: 1px solid var(--divider); border-radius: 0 0 10px 10px; margin-top: -6px; }
     .content p { margin: 10px 0; font-size: 14px; }
 
     /* Simple show/hide code sections */
-    .collapse-btn { display: inline-block; margin: 10px 0; padding: 10px 12px; font-size: 13px; background-color: var(--brand); color: #fff; border: none; border-radius: 5px; cursor: pointer; text-align: center; }
-    .collapse-btn:hover { background-color: #005f99; }
-    .collapsible-content { display: none; padding: 10px; margin-top: 5px; background-color: #f1f1f1; border: 1px solid #ddd; border-radius: 4px; width: 100%; overflow: auto; max-height: 260px; overflow-wrap: break-word; }
+    .collapse-btn { display: inline-block; margin: 10px 0; padding: 10px 12px; font-size: 13px; background: linear-gradient(180deg, var(--brand), var(--brand-strong)); color: #fff; border: none; border-radius: 999px; cursor: pointer; text-align: center; box-shadow: 0 6px 18px rgba(59,130,246,0.35); }
+    .collapse-btn:hover { filter: brightness(1.05); }
+
+    .collapsible-content { display: none; padding: 10px; margin-top: 8px; border: 1px solid var(--divider); border-radius: 10px; width: 100%; overflow: auto; max-height: 320px; overflow-wrap: break-word; }
 
     /* Code blocks */
-    pre code { font-size: 13px; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
+    pre code { font-size: 13px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
 
     /* Insight callout */
-    .insight-box { background-color: #fff8dc; border-left: 5px solid #d4af37; color: #5a4a00; padding: 15px 20px; margin: 20px 0; font-size: 16px; border-radius: 6px; box-shadow: 0 2px 6px rgba(212,175,55,0.2); font-weight: 600; }
+    .insight-box {
+      padding: 16px 18px; margin: 18px 0; border-radius: var(--radius);
+      border: 1px solid var(--divider);
+      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+      color: var(--text);
+    }
 
     /* Simple flowchart styles (for rendered demo) */
     .flowchart { display: flex; flex-direction: column; align-items: center; position: relative; gap: 12px; }
-    .flowchart .step { background: #fff; border: 2px solid var(--brand); border-radius: 12px; padding: 16px; width: 280px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); text-align: center; }
+    .flowchart .step { border-radius: 12px; padding: 16px; width: 280px; text-align: center; border: 1px solid var(--divider); background: var(--glass-strong); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: var(--shadow); }
     .flowchart .step-icon { font-size: 26px; margin-bottom: 6px; }
     .flowchart .arrow { font-size: 24px; color: var(--brand); }
-    .highlight { color: #dc3545; font-weight: bold; }
-    .safe { color: #28a745; font-weight: bold; }
+    .highlight { color: #fca5a5; font-weight: 800; }
+    .safe { color: #86efac; font-weight: 800; }
+
+    /* Section glass card */
+    .glass-section { padding: 18px; border: 1px solid var(--divider); border-radius: var(--radius); background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: var(--shadow); }
+
+    /* Iframes and media */
+    iframe { border-radius: 12px; border: 1px solid var(--divider); background: rgba(255,255,255,0.03); box-shadow: var(--shadow); }
+
+    /* Links */
+    a { color: #93c5fd; }
+    a:hover { color: #bfdbfe; }
 
     /* Responsive tweaks */
     @media (max-width: 640px) {
       .tab button { font-size: 14px; padding: 10px 6px; }
       .tabcontent img { max-width: 90%; }
+      body { padding: 18px; }
     }
   </style>
 
@@ -94,6 +148,41 @@
       if (!isOpen) {
         Prism.highlightAll();
       }
+      // Recompute uniform heights after content expands/collapses
+      setUniformTabHeights();
+    }
+
+    // Compute and apply the same min-height to all .tabcontent within each .tab-wrapper
+    function setUniformTabHeights() {
+      const wrappers = document.querySelectorAll('.tab-wrapper');
+      wrappers.forEach(wrapper => {
+        const contents = Array.from(wrapper.querySelectorAll('.tabcontent'));
+        if (contents.length === 0) return;
+        // Reset min-heights to allow natural measurement
+        contents.forEach(el => { el.style.minHeight = ''; });
+        let max = 0;
+        contents.forEach(el => {
+          const computed = getComputedStyle(el);
+          const wasHidden = computed.display === 'none';
+          const prevDisplay = el.style.display;
+          const prevVisibility = el.style.visibility;
+          if (wasHidden) {
+            el.style.visibility = 'hidden';
+            el.style.display = 'block';
+          }
+          max = Math.max(max, el.scrollHeight);
+          if (wasHidden) {
+            el.style.display = prevDisplay || '';
+            el.style.visibility = prevVisibility || '';
+          }
+        });
+        const minHeight = max + 'px';
+        contents.forEach(el => { el.style.minHeight = minHeight; el.classList.add('glass'); });
+      });
+      // Make tab headers glass too
+      document.querySelectorAll('.tab').forEach(t => t.classList.add('glass'));
+      // Collapsible content areas as glass
+      document.querySelectorAll('.content, .collapsible-content').forEach(c => c.classList.add('glass'));
     }
 
     // Scoped tab switching within the nearest .tab-wrapper
@@ -107,6 +196,8 @@
       const target = wrapper.querySelector('#' + CSS.escape(tabId));
       if (target) target.classList.add('active');
       evt.currentTarget.classList.add('active');
+      // Keep heights consistent when switching
+      setUniformTabHeights();
     }
 
     // Initialize animated collapsibles and Prism on load
@@ -121,9 +212,13 @@
           } else {
             content.style.maxHeight = content.scrollHeight + 'px';
           }
+          // Recompute heights after animated section changes
+          setUniformTabHeights();
         });
       });
       Prism.highlightAll();
+      setUniformTabHeights();
+      window.addEventListener('resize', setUniformTabHeights);
     });
   </script>
 </head>
@@ -143,7 +238,7 @@
     </div>
 
     <!-- Project Objective Tab Content -->
-    <div id="objective" class="tabcontent active">
+    <div id="objective" class="tabcontent active glass">
       <p>The primary goal is to develop an effective and adaptive moderation pipeline that combines the strengths of machine learning and human review. By integrating automated classifiers with manual assessment, the system aims to improve accuracy in detecting harmful content across social media platforms.</p>
       <p>Beyond detection, the project also seeks to proactively identify linguistic patterns, trending hashtags, and OSINT (Open-Source Intelligence) signals that may indicate emerging threats. This dual approach supports both real-time moderation and strategic foresight for online safety teams.</p>
       <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap;">
@@ -156,7 +251,7 @@
     </div>
 
     <!-- Project Background Tab Content -->
-    <div id="background" class="tabcontent">
+    <div id="background" class="tabcontent glass">
       <p>In today’s digital age, content moderation plays a crucial role in protecting users and maintaining the integrity of online platforms. The increasing volume of user generated content particularly on social media presents both opportunities and challenges. Among the most pressing challenges is the spread of harmful content such as hate speech, misinformation, graphic violence, and abusive language.</p>
       <p>Traditional moderation systems often struggle with scale, context, and cultural nuance. To address this, our project introduces a hybrid moderation workflow that combines Machine Learning (ML) with human review to improve both accuracy and efficiency. This system is designed to detect harmful content, identify emerging threat indicators such as evolving slurs, code words, or trending hashtags, and support proactive content moderation efforts.</p>
       <p>The ultimate goal is to help Trust & Safety teams stay ahead of online harms by reducing false positives and negatives, adapting to new threats in real time, and ensuring scalable moderation processes. This project emphasizes ethical AI use, contextual understanding, and operational feasibility—key components for creating safer online spaces.</p>
@@ -164,7 +259,7 @@
     </div>
 
     <!-- Workflow Tab Content -->
-    <div id="workflow" class="tabcontent">
+    <div id="workflow" class="tabcontent glass">
       <p>This project demonstrates a complete workflow for detecting harmful content on social media using machine learning models combined with human review.</p>
       <p>The dataset used originates from Kaggle.com and is intended for research and educational purposes.</p>
       <ul>
@@ -177,19 +272,19 @@
       </ul>
       <p><strong>Note on Data Usage:</strong><br />This project is for educational and portfolio purposes. All data is handled responsibly.</p>
 
-      <button class="collapsible">Data Description</button>
-      <div class="content">
+      <button class="collapsible glass">Data Description</button>
+      <div class="content glass">
         <p>The dataset includes about 8,000 tweets collected over one week (January 1–7, 2025). Each tweet is an anonymized user comment with details like the time it was posted. The tweets include all kinds of content—some normal, some potentially harmful, such as threats, insults, or rude language. The data is cleaned and user privacy is protected. This dataset helps us study harmful content and build tools to detect it. We handle all data carefully and responsibly.</p>
       </div>
 
-      <button class="collapsible">Data and Model Implementation</button>
-      <div class="content">
+      <button class="collapsible glass">Data and Model Implementation</button>
+      <div class="content glass">
         <p>This project implements a full-cycle pipeline to detect and review harmful content on social media using both machine learning models and manual validation. The process reflects a practical content moderation setup, integrating transformer-based models with OSINT-inspired keyword checks and human-in-the-loop evaluation.</p>
         <h3>1. Data Collection and Preparation</h3>
         <p>- Dataset: 8,000 tweets from <strong>01–07 January 2025</strong>, sourced from Kaggle for research.<br />- Includes tweet metadata (location, user ID, engagement metrics).<br />- Data imported via <code>pandas</code> and deduplicated on tweet text to ensure uniqueness.</p>
 
         <button class="collapse-btn" onclick="toggleCollapse('step1')">Install Libraries</button>
-        <div id="step1" class="collapsible-content">
+        <div id="step1" class="collapsible-content glass">
 <pre><code class="language-python">!pip install detoxify tqdm transformers datasets torch
 
 import pandas as pd                                                      # Data manipulation and analysis with DataFrames
@@ -203,7 +298,7 @@ from tqdm import tqdm                                                    # Progr
         </div>
 
         <button class="collapse-btn" onclick="toggleCollapse('step1b')">Import Data</button>
-        <div id="step1b" class="collapsible-content">
+        <div id="step1b" class="collapsible-content glass">
 <pre><code class="language-python">from google.colab import drive               # To mount Google Drive in Colab
 import pandas as pd
 
@@ -221,7 +316,7 @@ df.head()</code></pre>
         <p>- Outputs scores for: <code>toxicity</code>, <code>severe_toxicity</code>, <code>obscene</code>, <code>threat</code>, <code>insult</code>, <code>identity_attack</code>.<br />- Tweets with <strong>toxicity &gt; 0.8</strong> flagged for further review.</p>
 
         <button class="collapse-btn" onclick="toggleCollapse('step2a')">Detoxify</button>
-        <div id="step2a" class="collapsible-content">
+        <div id="step2a" class="collapsible-content glass">
 <pre><code class="language-python">from detoxify import Detoxify
 from tqdm import tqdm
 import pandas as pd
@@ -250,7 +345,7 @@ print(df['ml_flagged'].value_counts())</code></pre>
         <p>- Classifies tweets as <code>"TOXIC"</code> or <code>"NON_TOXIC"</code>.<br />- Serves as a cross-check to Detoxify results.</p>
 
         <button class="collapse-btn" onclick="toggleCollapse('step2b')">HuggingFace</button>
-        <div id="step2b" class="collapsible-content">
+        <div id="step2b" class="collapsible-content glass">
 <pre><code class="language-python">from transformers import pipeline
 from tqdm import tqdm
 import pandas as pd
@@ -285,7 +380,7 @@ df.head()</code></pre>
         <p>After processing and scoring the tweets with ML models, the results need to be reviewed manually to validate and improve accuracy. This step saves the current dataset, including model predictions and metadata as a timestamped CSV file in my Google Drive. This makes it easy to share and track different versions of the data for human annotation and further analysis.</p>
 
         <button class="collapse-btn" onclick="toggleCollapse('step3')">Export</button>
-        <div id="step3" class="collapsible-content">
+        <div id="step3" class="collapsible-content glass">
 <pre><code class="language-python">import datetime  # Saves the processed DataFrame as a CSV file with a timestamp in the filename (optional)
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -302,7 +397,7 @@ print(f"Saved processed data to {output_path}")</code></pre>
         <p>By combining automated filtering with OSINT-supported human insight, this process ensures a more comprehensive and adaptive detection system. It effectively closes gaps where models may underperform, providing a robust defense against harmful content.</p>
 
         <button class="collapse-btn" onclick="toggleCollapse('step4')">Chartflow (Code)</button>
-        <div id="step4" class="collapsible-content">
+        <div id="step4" class="collapsible-content glass">
 <pre><code>&lt;div class="flowchart"&gt;
   &lt;div class="step"&gt;
     &lt;div class="step-icon"&gt;📥&lt;/div&gt;
@@ -353,7 +448,7 @@ print(f"Saved processed data to {output_path}")</code></pre>
         <p>This section compares the harmful content labels predicted by the machine learning models with those assigned through manual human review. It evaluates model accuracy by identifying matches, false positives (model flagged safe content as harmful), and false negatives (model missed harmful content). This comparison not only highlights areas for model improvement but also reinforces the value of OSINT-informed human validation in maintaining effective, proactive content moderation.</p>
 
         <button class="collapse-btn" onclick="toggleCollapse('step5')">Detail Code</button>
-        <div id="step5" class="collapsible-content">
+        <div id="step5" class="collapsible-content glass">
 <pre><code class="language-python"># Load the raw model predictions and human review datasets from Google Drive
 import pandas as pd
 raw_path = '/content/drive/MyDrive/Notebook Twitter Project/RawData.csv'
@@ -405,7 +500,7 @@ false_negatives = df[df['false_negative']]
   </div>
 
   <!-- Overview of Detected Violation Types -->
-  <div style="margin: 32px auto 0 auto;">
+  <div class="glass-section" style="margin: 32px auto 0 auto;">
     <h2 style="text-align: left;">Overview of Detected Violation Types</h2>
     <p>This visualization displays the distribution of content violations identified during the human review process. Obscene language is the most frequently flagged category, indicating its persistent presence in online interactions. Insults and identity based attacks follow closely, suggesting a need for stricter moderation or improved model accuracy in these areas. Threats, while less common, remain a serious concern due to their potential real-world implications.</p>
     <iframe src="Assets-ploty/violation_chart.html" width="100%" height="500" style="border:none;"></iframe>
@@ -415,7 +510,7 @@ false_negatives = df[df['false_negative']]
   </div>
 
   <!-- Keyword Sensitive -->
-  <div style="margin: 32px auto 0 auto;">
+  <div class="glass-section" style="margin: 32px auto 0 auto;">
     <h2 style="text-align: left;">Keyword Sensitive</h2>
     <p>Every word carries weight, especially in online spaces where language can uplift or harm. In the effort to detect and moderate toxic content, identifying recurring harmful keywords becomes crucial.</p>
     <p>This chart tells a story hidden within our dataset: the most frequently used offensive terms flagged during human review. By mapping these keywords, we gain insight into the language patterns behind online violations—helping us prioritize moderation strategies, train better models, and foster safer digital environments.</p>
@@ -428,16 +523,16 @@ false_negatives = df[df['false_negative']]
         <button class="tablinks" onclick="openTab(event, 'Threat')">Threat</button>
       </div>
 
-      <div id="Obscene" class="tabcontent active">
+      <div id="Obscene" class="tabcontent active glass">
         <iframe src="Assets-ploty/keywordViolationObscene.html" width="100%" height="500" style="border:none;"></iframe>
       </div>
-      <div id="Insult" class="tabcontent">
+      <div id="Insult" class="tabcontent glass">
         <iframe src="Assets-ploty/keywordViolationInsult.html" width="100%" height="500" style="border:none;"></iframe>
       </div>
-      <div id="IdentityAttack" class="tabcontent">
+      <div id="IdentityAttack" class="tabcontent glass">
         <iframe src="Assets-ploty/keywordViolationIdentity%20Attack.html" width="100%" height="500" style="border:none;"></iframe>
       </div>
-      <div id="Threat" class="tabcontent">
+      <div id="Threat" class="tabcontent glass">
         <iframe src="Assets-ploty/keywordViolationThreat.html" width="100%" height="500" style="border:none;"></iframe>
       </div>
     </div>
@@ -450,7 +545,7 @@ false_negatives = df[df['false_negative']]
   </div>
 
   <!-- Hashtag Engagement Metrics -->
-  <div style="margin: 32px auto 0 auto;">
+  <div class="glass-section" style="margin: 32px auto 0 auto;">
     <h2 style="text-align: left;">Hashtag Engagement Metrics</h2>
     <p>Hashtags serve as powerful markers on social media, highlighting trending topics, communities, and sentiments. By analyzing hashtags related to content flagged for violations, we gain valuable insight into the themes and issues driving engagement, as well as the potential spread of harmful or sensitive material. This analysis not only helps us identify patterns of online behavior but also informs more effective monitoring and moderation strategies.</p>
 
@@ -459,10 +554,10 @@ false_negatives = df[df['false_negative']]
         <button class="tablinks active" onclick="openTab(event, 'Like')">Like</button>
         <button class="tablinks" onclick="openTab(event, 'Retweet')">Retweet</button>
       </div>
-      <div id="Like" class="tabcontent active">
+      <div id="Like" class="tabcontent active glass">
         <iframe src="Assets-ploty/Hashtaglikes_chart.html" width="100%" height="500" style="border:none;"></iframe>
       </div>
-      <div id="Retweet" class="tabcontent">
+      <div id="Retweet" class="tabcontent glass">
         <iframe src="Assets-ploty/Hashtagretweets_chart.html" width="100%" height="500" style="border:none;"></iframe>
       </div>
     </div>
