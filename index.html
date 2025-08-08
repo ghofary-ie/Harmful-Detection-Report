@@ -151,6 +151,17 @@
     .toc a:hover { text-decoration: underline; opacity: 0.9; }
     .toc .group-title { margin-top: 10px; font-weight: 700; font-size: 12px; color: var(--muted); }
     @media (max-width: 1080px) { .layout { grid-template-columns: 1fr; } .toc { display: none; } }
+    /* Section title underline */
+    .section-title { position: relative; padding-bottom: 6px; }
+    .section-title::after {
+      content: "";
+      display: block;
+      height: 2px;
+      width: 100%;
+      background: rgba(6, 182, 212, 0.35);
+      margin-top: 6px;
+      border-radius: 2px;
+    }
   </style>
 
   <script>
@@ -536,7 +547,7 @@ false_negatives = df[df['false_negative']]
 
         <!-- Overview of Detected Violation Types -->
         <div id="violation-overview" class="glass-section" style="margin: 32px auto 0 auto;">
-          <h2 style="text-align: left;">Overview of Detected Violation Types</h2>
+          <h2 class="section-title" style="text-align: left;">Overview of Detected Violation Types</h2>
           <p>This visualization displays the distribution of content violations identified during the human review process. Obscene language is the most frequently flagged category, indicating its persistent presence in online interactions. Insults and identity based attacks follow closely, suggesting a need for stricter moderation or improved model accuracy in these areas. Threats, while less common, remain a serious concern due to their potential real world implications.</p>
           <iframe src="Assets-ploty/violation_chart.html" width="100%" height="500" style="border:none;"></iframe>
           <div class="insight-box">
@@ -546,7 +557,7 @@ false_negatives = df[df['false_negative']]
 
         <!-- Keyword Sensitive -->
         <div id="keywords" class="glass-section" style="margin: 32px auto 0 auto;">
-          <h2 style="text-align: left;">Keyword Sensitive</h2>
+          <h2 class="section-title" style="text-align: left;">Keyword Sensitive</h2>
           <p>Every word carries weight, especially in online spaces where language can uplift or harm. In the effort to detect and moderate toxic content, identifying recurring harmful keywords becomes crucial.</p>
           <p>This chart tells a story hidden within our dataset: the most frequently used offensive terms flagged during human review. By mapping these keywords, we gain insight into the language patterns behind online violations helping us prioritize moderation strategies, train better models, and foster safer digital environments.</p>
 
@@ -581,7 +592,7 @@ false_negatives = df[df['false_negative']]
 
         <!-- Hashtag Engagement Metrics -->
         <div id="hashtags" class="glass-section" style="margin: 32px auto 0 auto;">
-          <h2 style="text-align: left;">Hashtag Engagement Metrics</h2>
+          <h2 class="section-title" style="text-align: left;">Hashtag Engagement Metrics</h2>
           <p>Hashtags serve as powerful markers on social media, highlighting trending topics, communities, and sentiments. By analyzing hashtags related to content flagged for violations, we gain valuable insight into the themes and issues driving engagement, as well as the potential spread of harmful or sensitive material. This analysis not only helps us identify patterns of online behavior but also informs more effective monitoring and moderation strategies.</p>
 
           <div class="tab-wrapper" id="group3">
@@ -606,10 +617,10 @@ false_negatives = df[df['false_negative']]
         </div>
 
         <!-- Interactive Violation Map -->
-        <h2 id="map">🌍 Interactive Violation Map</h2>
+        <h2 id="map" class="section-title" style="text-align: left;">🌍 Interactive Violation Map</h2>
         <iframe src="violation_map.html" style="width: 100%; height: 600px; border: none;"></iframe>
         <div id="performance" class="glass-section" style="margin: 32px auto 0 auto;">
-          <h2 style="text-align: left;">Quantitative Metrics: Model Performance Evaluation</h2>
+          <h2 class="section-title" style="text-align: left;">Quantitative Metrics: Model Performance Evaluation</h2>
           <p>This section evaluates the performance of the transformer model against human judgment using standard metrics.</p>
           <ul>
             <li><strong>Precision</strong>: Measures the proportion of tweets labeled as violations by the model that are actual violations according to human review.</li>
