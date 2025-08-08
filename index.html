@@ -105,12 +105,16 @@
     /* Insight callout */
     .insight-box {
       padding: 16px 18px; margin: 18px 0; border-radius: var(--radius);
-      border: 1px solid var(--divider);
-      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+      border: 1px solid rgba(212,175,55,0.55);
+      border-left: 5px solid rgba(212,175,55,0.95);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)),
+        linear-gradient(135deg, rgba(255,215,0,0.22), rgba(212,175,55,0.28));
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      box-shadow: var(--shadow);
-      color: var(--text);
+      box-shadow: var(--shadow), 0 12px 30px rgba(212,175,55,0.18);
+      color: #f8fafc;
     }
+    .insight-box strong { color: #fff6bf; }
 
     /* Simple flowchart styles (for rendered demo) */
     .flowchart { display: flex; flex-direction: column; align-items: center; position: relative; gap: 12px; }
