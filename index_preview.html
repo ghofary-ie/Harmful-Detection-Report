@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Harmful Content Detection Report</title>
+
+  <!-- Prism for code highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+  <style>
+    /* Layout & Typography */
+    :root {
+      --max-width: 960px;
+      --radius: 8px;
+      --border: 1px solid #ccc;
+      --brand: #007bff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      max-width: var(--max-width);
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    h1 { text-align: center; margin: 0 0 0.75em; }
+    h2 { font-size: 20px; text-align: center; margin: 2em 0 0.75em; }
+    h3 { font-size: 16px; margin: 1.25em 0 0.5em; }
+    p, ul { font-size: 15px; text-align: justify; }
+
+    /* Tabs */
+    .tab-wrapper { margin: 28px auto 0 auto; }
+    .tab { display: flex; width: 100%; border: var(--border); border-bottom: none; background-color: #e9e9e9; border-radius: 8px 8px 0 0; overflow: hidden; }
+    .tab button { flex: 1; background: inherit; border: none; outline: none; cursor: pointer; padding: 12px 8px; transition: background-color 0.3s ease; border-right: var(--border); font-weight: bold; font-size: 16px; display: flex; justify-content: center; align-items: center; gap: 6px; white-space: nowrap; line-height: 1.2; }
+    .tab button:last-child { border-right: none; }
+    .tab button.active { background-color: #fff; border-bottom: 2px solid #fff; }
+
+    .tabcontent { display: none; padding: 20px; border: var(--border); border-top: none; background-color: #fff; border-radius: 0 0 var(--radius) var(--radius); width: 100%; }
+    .tabcontent.active { display: block; }
+
+    .tabcontent img { display: block; margin: 1em auto; max-width: 50%; border-radius: 8px; height: auto; }
+
+    /* Collapsible (animated content sections) */
+    .collapsible { background-color: #eee; color: #444; cursor: pointer; padding: 10px 18px; width: 100%; border: none; text-align: left; outline: none; font-size: 16px; margin-top: 15px; border-radius: 5px; transition: background-color 0.3s ease; }
+    .collapsible:hover { background-color: #ddd; }
+    .active-collapsible, .collapsible:active { background-color: #ccc; }
+
+    .content { padding: 0 18px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background-color: #fff; border-left: var(--border); border-right: var(--border); border-bottom: var(--border); border-radius: 0 0 5px 5px; }
+    .content p { margin: 10px 0; font-size: 14px; }
+
+    /* Simple show/hide code sections */
+    .collapse-btn { display: inline-block; margin: 10px 0; padding: 10px 12px; font-size: 13px; background-color: var(--brand); color: #fff; border: none; border-radius: 5px; cursor: pointer; text-align: center; }
+    .collapse-btn:hover { background-color: #005f99; }
+    .collapsible-content { display: none; padding: 10px; margin-top: 5px; background-color: #f1f1f1; border: 1px solid #ddd; border-radius: 4px; width: 100%; overflow: auto; max-height: 260px; overflow-wrap: break-word; }
+
+    /* Code blocks */
+    pre code { font-size: 13px; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
+
+    /* Insight callout */
+    .insight-box { background-color: #fff8dc; border-left: 5px solid #d4af37; color: #5a4a00; padding: 15px 20px; margin: 20px 0; font-size: 16px; border-radius: 6px; box-shadow: 0 2px 6px rgba(212,175,55,0.2); font-weight: 600; }
+
+    /* Simple flowchart styles (for rendered demo) */
+    .flowchart { display: flex; flex-direction: column; align-items: center; position: relative; gap: 12px; }
+    .flowchart .step { background: #fff; border: 2px solid var(--brand); border-radius: 12px; padding: 16px; width: 280px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); text-align: center; }
+    .flowchart .step-icon { font-size: 26px; margin-bottom: 6px; }
+    .flowchart .arrow { font-size: 24px; color: var(--brand); }
+    .highlight { color: #dc3545; font-weight: bold; }
+    .safe { color: #28a745; font-weight: bold; }
+
+    /* Responsive tweaks */
+    @media (max-width: 640px) {
+      .tab button { font-size: 14px; padding: 10px 6px; }
+      .tabcontent img { max-width: 90%; }
+    }
+  </style>
+
+  <script>
+    // Show/hide content blocks by id (used by .collapse-btn)
+    function toggleCollapse(id) {
+      const content = document.getElementById(id);
+      const isOpen = content && content.style.display === 'block';
+      if (!content) return;
+      content.style.display = isOpen ? 'none' : 'block';
+      if (!isOpen) {
+        Prism.highlightAll();
+      }
+    }
+
+    // Scoped tab switching within the nearest .tab-wrapper
+    function openTab(evt, tabId) {
+      const wrapper = evt.currentTarget.closest('.tab-wrapper');
+      if (!wrapper) return;
+      const contents = wrapper.querySelectorAll('.tabcontent');
+      contents.forEach(c => c.classList.remove('active'));
+      const tabs = wrapper.querySelectorAll('.tablinks');
+      tabs.forEach(t => t.classList.remove('active'));
+      const target = wrapper.querySelector('#' + CSS.escape(tabId));
+      if (target) target.classList.add('active');
+      evt.currentTarget.classList.add('active');
+    }
+
+    // Initialize animated collapsibles and Prism on load
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.collapsible').forEach(button => {
+        button.addEventListener('click', () => {
+          button.classList.toggle('active-collapsible');
+          const content = button.nextElementSibling;
+          if (!content) return;
+          if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+          } else {
+            content.style.maxHeight = content.scrollHeight + 'px';
+          }
+        });
+      });
+      Prism.highlightAll();
+    });
+  </script>
+</head>
+
+<body>
+  <!-- Page Title -->
+  <h1>Harmful Content Detection Pipeline</h1>
+  <h2>👋 Hi, I'm Abdul</h2>
+  <p>I'm based in Dublin, Ireland, working in Trust & Safety with experience at Meta via Covalen. I’m passionate about using AI and data analytics to help create safer online communities. This project shows my work on detecting harmful content using data visualization and machine learning.</p>
+
+  <!-- Tabs: Objective / Background / Workflow -->
+  <div class="tab-wrapper" id="group1">
+    <div class="tab">
+      <button class="tablinks active" onclick="openTab(event, 'objective')">🎯 Project Objective</button>
+      <button class="tablinks" onclick="openTab(event, 'background')">Project Background</button>
+      <button class="tablinks" onclick="openTab(event, 'workflow')">Workflow</button>
+    </div>
+
+    <!-- Project Objective Tab Content -->
+    <div id="objective" class="tabcontent active">
+      <p>The primary goal is to develop an effective and adaptive moderation pipeline that combines the strengths of machine learning and human review. By integrating automated classifiers with manual assessment, the system aims to improve accuracy in detecting harmful content across social media platforms.</p>
+      <p>Beyond detection, the project also seeks to proactively identify linguistic patterns, trending hashtags, and OSINT (Open-Source Intelligence) signals that may indicate emerging threats. This dual approach supports both real-time moderation and strategic foresight for online safety teams.</p>
+      <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap;">
+        <img src="assets/chip.png" alt="AI chip icon" width="60" height="60" />
+        <img src="assets/brain.png" alt="Brain icon" width="60" height="60" />
+        <img src="assets/synergy.png" alt="Synergy icon" width="60" height="60" />
+        <img src="assets/communication-skills.png" alt="Communication skills icon" width="60" height="60" />
+        <img src="assets/data-cleaning.png" alt="Data cleaning icon" width="60" height="60" />
+      </div>
+    </div>
+
+    <!-- Project Background Tab Content -->
+    <div id="background" class="tabcontent">
+      <p>In today’s digital age, content moderation plays a crucial role in protecting users and maintaining the integrity of online platforms. The increasing volume of user generated content particularly on social media presents both opportunities and challenges. Among the most pressing challenges is the spread of harmful content such as hate speech, misinformation, graphic violence, and abusive language.</p>
+      <p>Traditional moderation systems often struggle with scale, context, and cultural nuance. To address this, our project introduces a hybrid moderation workflow that combines Machine Learning (ML) with human review to improve both accuracy and efficiency. This system is designed to detect harmful content, identify emerging threat indicators such as evolving slurs, code words, or trending hashtags, and support proactive content moderation efforts.</p>
+      <p>The ultimate goal is to help Trust & Safety teams stay ahead of online harms by reducing false positives and negatives, adapting to new threats in real time, and ensuring scalable moderation processes. This project emphasizes ethical AI use, contextual understanding, and operational feasibility—key components for creating safer online spaces.</p>
+      <img src="shutter-speed-PSCxb6qpiFg-unsplash.jpg" alt="Social media platforms collage" />
+    </div>
+
+    <!-- Workflow Tab Content -->
+    <div id="workflow" class="tabcontent">
+      <p>This project demonstrates a complete workflow for detecting harmful content on social media using machine learning models combined with human review.</p>
+      <p>The dataset used originates from Kaggle.com and is intended for research and educational purposes.</p>
+      <ul>
+        <li>Loads and preprocesses raw comment data</li>
+        <li>Applies transformer-based toxicity models (e.g., Detoxify, HuggingFace)</li>
+        <li>Integrates human review labels to validate and improve model predictions</li>
+        <li>Identifies false positives and false negatives for error analysis</li>
+        <li>Provides clear evaluation metrics and visualizations</li>
+        <li>Highlights real-world challenges in content moderation</li>
+      </ul>
+      <p><strong>Note on Data Usage:</strong><br />This project is for educational and portfolio purposes. All data is handled responsibly.</p>
+
+      <button class="collapsible">Data Description</button>
+      <div class="content">
+        <p>The dataset includes about 8,000 tweets collected over one week (January 1–7, 2025). Each tweet is an anonymized user comment with details like the time it was posted. The tweets include all kinds of content—some normal, some potentially harmful, such as threats, insults, or rude language. The data is cleaned and user privacy is protected. This dataset helps us study harmful content and build tools to detect it. We handle all data carefully and responsibly.</p>
+      </div>
+
+      <button class="collapsible">Data and Model Implementation</button>
+      <div class="content">
+        <p>This project implements a full-cycle pipeline to detect and review harmful content on social media using both machine learning models and manual validation. The process reflects a practical content moderation setup, integrating transformer-based models with OSINT-inspired keyword checks and human-in-the-loop evaluation.</p>
+        <h3>1. Data Collection and Preparation</h3>
+        <p>- Dataset: 8,000 tweets from <strong>01–07 January 2025</strong>, sourced from Kaggle for research.<br />- Includes tweet metadata (location, user ID, engagement metrics).<br />- Data imported via <code>pandas</code> and deduplicated on tweet text to ensure uniqueness.</p>
+
+        <button class="collapse-btn" onclick="toggleCollapse('step1')">Install Libraries</button>
+        <div id="step1" class="collapsible-content">
+<pre><code class="language-python">!pip install detoxify tqdm transformers datasets torch
+
+import pandas as pd                                                      # Data manipulation and analysis with DataFrames
+import numpy as np                                                       # Numerical operations and array handling
+import matplotlib.pyplot as plt                                          # Plotting static and interactive visualizations
+import seaborn as sns                                                    # Statistical data visualization built on matplotlib
+from sklearn.metrics import classification_report, confusion_matrix      # Model evaluation metrics
+from detoxify import Detoxify                                            # Pre-trained model for toxic content detection
+from transformers import pipeline                                        # Access to transformer based NLP models (HuggingFace)
+from tqdm import tqdm                                                    # Progress bars for loops and iterations</code></pre>
+        </div>
+
+        <button class="collapse-btn" onclick="toggleCollapse('step1b')">Import Data</button>
+        <div id="step1b" class="collapsible-content">
+<pre><code class="language-python">from google.colab import drive               # To mount Google Drive in Colab
+import pandas as pd
+
+file_path = '/content/drive/MyDrive/Notebook Twitter Project/Raw-Data-Week-1,Jan-2025.csv'
+
+df = pd.read_csv(file_path)
+
+df.head()</code></pre>
+        </div>
+
+        <h3>2. Toxicity Detection using Machine Learning Models</h3>
+        <p>Two pre-trained transformer models were used to score tweets:</p>
+
+        <h3>A. Detoxify (multi-label classifier)</h3>
+        <p>- Outputs scores for: <code>toxicity</code>, <code>severe_toxicity</code>, <code>obscene</code>, <code>threat</code>, <code>insult</code>, <code>identity_attack</code>.<br />- Tweets with <strong>toxicity &gt; 0.8</strong> flagged for further review.</p>
+
+        <button class="collapse-btn" onclick="toggleCollapse('step2a')">Detoxify</button>
+        <div id="step2a" class="collapsible-content">
+<pre><code class="language-python">from detoxify import Detoxify
+from tqdm import tqdm
+import pandas as pd
+
+detoxify_model = Detoxify('original')
+
+scores = []
+for tweet in tqdm(df['tweet'], desc="Scoring tweets"):
+    score = detoxify_model.predict(tweet)
+    scores.append(score)
+
+scores_df = pd.DataFrame(scores)
+
+df = pd.concat([df.reset_index(drop=True), scores_df], axis=1)
+
+df.head()
+
+toxicity_threshold = 0.8
+
+df['ml_flagged'] = df['toxicity'] &gt; toxicity_threshold
+
+print(df['ml_flagged'].value_counts())</code></pre>
+        </div>
+
+        <h3>B. Toxic-BERT (binary classifier)</h3>
+        <p>- Classifies tweets as <code>"TOXIC"</code> or <code>"NON_TOXIC"</code>.<br />- Serves as a cross-check to Detoxify results.</p>
+
+        <button class="collapse-btn" onclick="toggleCollapse('step2b')">HuggingFace</button>
+        <div id="step2b" class="collapsible-content">
+<pre><code class="language-python">from transformers import pipeline
+from tqdm import tqdm
+import pandas as pd
+
+classifier = pipeline("text-classification", model="unitary/toxic-bert")
+
+sample_text = "I hate you and hope bad things happen to you!"
+result = classifier(sample_text)
+print(result)
+
+classifier = pipeline("text-classification", model="unitary/toxic-bert")
+
+toxic_labels = []
+toxic_scores = []
+
+for tweet in tqdm(df['tweet'], desc="Cross-checking with Toxic-BERT"):
+    try:
+        result = classifier(tweet[:512])[0]
+        toxic_labels.append(result['label'])
+        toxic_scores.append(result['score'])
+    except Exception:
+        toxic_labels.append("error")
+        toxic_scores.append(0)
+
+df['toxicbert_label'] = toxic_labels
+df['toxicbert_score'] = toxic_scores
+
+df.head()</code></pre>
+        </div>
+
+        <h3>3. Human Review</h3>
+        <p>After processing and scoring the tweets with ML models, the results need to be reviewed manually to validate and improve accuracy. This step saves the current dataset, including model predictions and metadata as a timestamped CSV file in my Google Drive. This makes it easy to share and track different versions of the data for human annotation and further analysis.</p>
+
+        <button class="collapse-btn" onclick="toggleCollapse('step3')">Export</button>
+        <div id="step3" class="collapsible-content">
+<pre><code class="language-python">import datetime  # Saves the processed DataFrame as a CSV file with a timestamp in the filename (optional)
+
+timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+output_path = f'/content/drive/MyDrive/Notebook Twitter Project/HumanReview{timestamp}.csv'
+
+df.to_csv(output_path, index=False)
+print(f"Saved processed data to {output_path}")</code></pre>
+        </div>
+
+        <h3>4. Manual Validation Process</h3>
+        <p>In this step, I focus on validating the model’s harmful content predictions by performing a manual review grounded in OSINT (Open Source Intelligence) principles. I first filter tweets that the Detoxify and HuggingFace models flagged as harmful, then review each tweet to confirm whether it truly violates community guidelines (X Rules and Policies). The manual judgment categorizes tweets as either "harmful" or "safe" in a Final Review column.</p>
+        <p>The criteria for this review align with specific sections of the community rules and policies, focusing on severe toxicity, obscenity, threat, insult, and identity attack. Leveraging OSINT techniques, such as keyword analysis, linguistic pattern recognition, and contextual assessment, helps ensure thorough validation beyond automated detection. This approach helps improve overall accuracy by identifying false positives and false negatives, which the models alone might miss or misclassify.</p>
+        <p>After reviewing tweets flagged as harmful by the models, the next step involves manually checking tweets marked as safe by searching for critical keywords and linguistic markers identified through OSINT research—terms like "Nigga", "Porn", "Child", "Teenager", and "Sex" that commonly appear in harmful content. This targeted keyword search is informed by ongoing OSINT monitoring to detect emerging threats and evolving harmful language patterns.</p>
+        <p>By combining automated filtering with OSINT-supported human insight, this process ensures a more comprehensive and adaptive detection system. It effectively closes gaps where models may underperform, providing a robust defense against harmful content.</p>
+
+        <button class="collapse-btn" onclick="toggleCollapse('step4')">Chartflow (Code)</button>
+        <div id="step4" class="collapsible-content">
+<pre><code>&lt;div class="flowchart"&gt;
+  &lt;div class="step"&gt;
+    &lt;div class="step-icon"&gt;📥&lt;/div&gt;
+    Collect tweets&lt;br /&gt;from dataset
+  &lt;/div&gt;
+  &lt;div class="arrow"&gt;↓&lt;/div&gt;
+  &lt;div class="step"&gt;
+    &lt;div class="step-icon"&gt;🧠&lt;/div&gt;
+    Run &lt;strong&gt;Detoxify&lt;/strong&gt; &amp; &lt;strong&gt;HF models&lt;/strong&gt;&lt;br /&gt;→ classify as &lt;span class="highlight"&gt;Harmful&lt;/span&gt; or &lt;span class="safe"&gt;Safe&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="arrow"&gt;↓&lt;/div&gt;
+  &lt;div class="step"&gt;
+    &lt;div class="step-icon"&gt;👀&lt;/div&gt;
+    Manual review (X Guidelines)&lt;br /&gt;Final label: &lt;span class="highlight"&gt;Harmful&lt;/span&gt; / &lt;span class="safe"&gt;Safe&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="arrow"&gt;↓&lt;/div&gt;
+  &lt;div class="step"&gt;
+    &lt;div class="step-icon"&gt;📊&lt;/div&gt;
+    Compare prediction vs. human: ✅ / ❌ → Improve model accuracy
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+
+        <!-- Optional: Rendered flowchart preview -->
+        <div class="flowchart" aria-hidden="false">
+          <div class="step">
+            <div class="step-icon">📥</div>
+            Collect tweets<br />from dataset
+          </div>
+          <div class="arrow">↓</div>
+          <div class="step">
+            <div class="step-icon">🧠</div>
+            Run <strong>Detoxify</strong> &amp; <strong>HF models</strong><br />→ classify as <span class="highlight">Harmful</span> or <span class="safe">Safe</span>
+          </div>
+          <div class="arrow">↓</div>
+          <div class="step">
+            <div class="step-icon">👀</div>
+            Manual review (X Guidelines)<br />Final label: <span class="highlight">Harmful</span> / <span class="safe">Safe</span>
+          </div>
+          <div class="arrow">↓</div>
+          <div class="step">
+            <div class="step-icon">📊</div>
+            Compare prediction vs. human: ✅ / ❌ → Improve model accuracy
+          </div>
+        </div>
+
+        <h3>5. Model Evaluation Against Human Judgment</h3>
+        <p>This section compares the harmful content labels predicted by the machine learning models with those assigned through manual human review. It evaluates model accuracy by identifying matches, false positives (model flagged safe content as harmful), and false negatives (model missed harmful content). This comparison not only highlights areas for model improvement but also reinforces the value of OSINT-informed human validation in maintaining effective, proactive content moderation.</p>
+
+        <button class="collapse-btn" onclick="toggleCollapse('step5')">Detail Code</button>
+        <div id="step5" class="collapsible-content">
+<pre><code class="language-python"># Load the raw model predictions and human review datasets from Google Drive
+import pandas as pd
+raw_path = '/content/drive/MyDrive/Notebook Twitter Project/RawData.csv'
+review_path = '/content/drive/MyDrive/Notebook Twitter Project/HumanReview20250721_230147 - Clean Data.csv'
+
+df_raw = pd.read_csv(raw_path)
+df_review = pd.read_csv(review_path)
+
+# Clean column names by removing whitespace and converting to lowercase for consistent merging
+df_raw.columns = df_raw.columns.str.strip().str.lower()
+df_review.columns = df_review.columns.str.strip().str.lower()
+
+# Merge on common id
+df = pd.merge(df_raw, df_review[['id', 'human review']], on='id', how='inner')
+
+# Normalize labels for comparison
+df['transformer_harmful'] = df['transformer_harmful'].str.lower().str.strip()
+df['human review'] = df['human review'].str.lower().str.strip()
+
+df['transformer_harmful'] = df['transformer_harmful'].replace({
+    'harmful': 'violation',
+    'not harmful': 'safe'
+})
+
+# Agreement and error flags
+df['match'] = df['transformer_harmful'] == df['human review']
+df['false_positive'] = (df['human review'] == 'safe') & (df['transformer_harmful'] == 'violation')
+df['false_negative'] = (df['human review'] == 'violation') & (df['transformer_harmful'] == 'safe')
+
+# Summary
+print(f"Total Samples: {len(df)}")
+print("Evaluation Summary:")
+print(f"Correct Matches: {df['match'].sum()}")
+print(f"False Positives (Model says Violation, human says Safe): {df['false_positive'].sum()}")
+print(f"False Negatives (Model says Safe, human says Violation): {df['false_negative'].sum()}")
+
+# Save results
+output_path = '/content/drive/MyDrive/Notebook Twitter Project/Final_evaluation_result.csv'
+df.to_csv(output_path, index=False)
+print(f"\nSaved to: {output_path}")
+
+# Inspect errors for manual review
+false_positives = df[df['false_positive']]
+false_negatives = df[df['false_negative']]
+</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overview of Detected Violation Types -->
+  <div style="margin: 32px auto 0 auto;">
+    <h2 style="text-align: left;">Overview of Detected Violation Types</h2>
+    <p>This visualization displays the distribution of content violations identified during the human review process. Obscene language is the most frequently flagged category, indicating its persistent presence in online interactions. Insults and identity based attacks follow closely, suggesting a need for stricter moderation or improved model accuracy in these areas. Threats, while less common, remain a serious concern due to their potential real-world implications.</p>
+    <iframe src="Assets-ploty/violation_chart.html" width="100%" height="500" style="border:none;"></iframe>
+    <div class="insight-box">
+      <strong>Insight:</strong> Dynamic Lexicon Updating ensures the moderation system stays effective by continuously refreshing the list of obscene terms using open source intelligence and social media trends. This approach helps capture evolving slang and coded language, improving detection accuracy and community safety.
+    </div>
+  </div>
+
+  <!-- Keyword Sensitive -->
+  <div style="margin: 32px auto 0 auto;">
+    <h2 style="text-align: left;">Keyword Sensitive</h2>
+    <p>Every word carries weight, especially in online spaces where language can uplift or harm. In the effort to detect and moderate toxic content, identifying recurring harmful keywords becomes crucial.</p>
+    <p>This chart tells a story hidden within our dataset: the most frequently used offensive terms flagged during human review. By mapping these keywords, we gain insight into the language patterns behind online violations—helping us prioritize moderation strategies, train better models, and foster safer digital environments.</p>
+
+    <div class="tab-wrapper" id="group2">
+      <div class="tab">
+        <button class="tablinks active" onclick="openTab(event, 'Obscene')">Obscene</button>
+        <button class="tablinks" onclick="openTab(event, 'Insult')">Insult</button>
+        <button class="tablinks" onclick="openTab(event, 'IdentityAttack')">Identity Attack</button>
+        <button class="tablinks" onclick="openTab(event, 'Threat')">Threat</button>
+      </div>
+
+      <div id="Obscene" class="tabcontent active">
+        <iframe src="Assets-ploty/keywordViolationObscene.html" width="100%" height="500" style="border:none;"></iframe>
+      </div>
+      <div id="Insult" class="tabcontent">
+        <iframe src="Assets-ploty/keywordViolationInsult.html" width="100%" height="500" style="border:none;"></iframe>
+      </div>
+      <div id="IdentityAttack" class="tabcontent">
+        <iframe src="Assets-ploty/keywordViolationIdentity%20Attack.html" width="100%" height="500" style="border:none;"></iframe>
+      </div>
+      <div id="Threat" class="tabcontent">
+        <iframe src="Assets-ploty/keywordViolationThreat.html" width="100%" height="500" style="border:none;"></iframe>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      <strong>Insight:</strong>
+      <p>Sensitive keywords such as “rape,” “sex,” and “fuck” frequently appear in English toxic content and are widely recognized for their severity. These terms or their equivalents are also common in other languages, reflecting similar patterns of abuse and harassment globally.</p>
+      <p>Even without having full multilingual datasets, this insight allows us to extend OSINT approaches by identifying and monitoring high-risk keywords in other languages—starting with translated versions of universally sensitive terms.</p>
+    </div>
+  </div>
+
+  <!-- Hashtag Engagement Metrics -->
+  <div style="margin: 32px auto 0 auto;">
+    <h2 style="text-align: left;">Hashtag Engagement Metrics</h2>
+    <p>Hashtags serve as powerful markers on social media, highlighting trending topics, communities, and sentiments. By analyzing hashtags related to content flagged for violations, we gain valuable insight into the themes and issues driving engagement, as well as the potential spread of harmful or sensitive material. This analysis not only helps us identify patterns of online behavior but also informs more effective monitoring and moderation strategies.</p>
+
+    <div class="tab-wrapper" id="group3">
+      <div class="tab">
+        <button class="tablinks active" onclick="openTab(event, 'Like')">Like</button>
+        <button class="tablinks" onclick="openTab(event, 'Retweet')">Retweet</button>
+      </div>
+      <div id="Like" class="tabcontent active">
+        <iframe src="Assets-ploty/Hashtaglikes_chart.html" width="100%" height="500" style="border:none;"></iframe>
+      </div>
+      <div id="Retweet" class="tabcontent">
+        <iframe src="Assets-ploty/Hashtagretweets_chart.html" width="100%" height="500" style="border:none;"></iframe>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      <strong>Insight:</strong>
+      <p>The hashtag engagement data reveals a strong interaction around keywords related to obscene and insulting content. Hashtags like #hot, #sex, #sexy, #porn, #wet, and #nude dominate in terms of likes, reflecting a high user interest or attention towards sexual and explicit themes on the platform. This signals that content flagged as obscene often garners significant engagement, which can amplify its visibility.</p>
+      <p>Interestingly, hashtags linked to insulting language, such as #bigot, #homophobic, and #pig, also receive substantial engagement, showing that hateful or discriminatory language attracts attention and can contribute to the spread of harmful discourse.</p>
+      <p>This pattern highlights the potential for harmful content to go viral, as high engagement on these hashtags can rapidly amplify toxic material. Monitoring and early detection of such trending hashtags is crucial for timely intervention to reduce harmful exposure and protect the online community.</p>
+    </div>
+  </div>
+
+  <!-- Interactive Violation Map -->
+  <h2>🌍 Interactive Violation Map</h2>
+  <iframe src="violation_map.html" style="width: 100%; height: 600px; border: none;"></iframe>
+</body>
+</html>
