@@ -617,8 +617,18 @@ false_negatives = df[df['false_negative']]
         </div>
 
         <!-- Interactive Violation Map -->
-        <h2 id="map" class="section-title" style="text-align: left;">🌍 Interactive Violation Map</h2>
-        <iframe src="violation_map.html" style="width: 100%; height: 600px; border: none;"></iframe>
+      <!-- Interactive Violation Map -->
+        <div id="map-section" class="glass-section" style="margin: 32px auto 0 auto;">
+          <h2 id="map" class="section-title" style="text-align: left;">EMEA Violation Map</h2>
+          <p>The violation map shows where harmful content is most concentrated. Darker areas indicate higher violation rates.</p>
+          <iframe src="violation_map.html" style="width: 100%; height: 600px; border: none;"></iframe>
+          <div class="insight-box">
+            <p>The violation map indicates that UAE, Poland, and Egypt are the top three regions for harmful content activity, making them key targets for intervention. Prioritizing these areas allows for a more efficient allocation of moderation resources, such as assigning additional human moderators familiar with local context and deploying region-specific automated filters. This targeted approach can reduce harmful content exposure more quickly and improve overall detection accuracy in the highest risk zones.</p>
+          </div>
+        </div>
+
+
+
         <div id="performance" class="glass-section" style="margin: 32px auto 0 auto;">
           <h2 class="section-title" style="text-align: left;">Quantitative Metrics: Model Performance Evaluation</h2>
           <p>This section evaluates the performance of the transformer model against human judgment using standard metrics.</p>
