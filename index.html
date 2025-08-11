@@ -271,7 +271,7 @@
       <p>This repository presents a comprehensive content moderation pipeline designed to detect and analyze harmful online content. Built with machine learning models and advanced data visualization, the project covers keyword sensitivity analysis, hashtag engagement risk metrics, and geospatial violation mapping.</p>
       <p>The work demonstrates a scalable approach to identifying emerging risks, supporting both real-time moderation operations and strategic policy planning for online safety teams.
       </p>
-      
+
       <!-- Tabs: Objective / Background / Workflow -->
       <div class="tab-wrapper" id="group1">
         <div class="tab">
@@ -682,6 +682,21 @@ false_negatives = df[df['false_negative']]
             <p>For violation tweets, the model achieves a high recall of 94%, indicating it captures most of the harmful content. However, precision is relatively low at 32%, meaning the model generates a significant number of false positives.</p>
             <p>The overall accuracy is 95%, driven primarily by the large volume of safe tweets in the dataset.</p>
           </div>
+        </div>
+
+            <div id="summary-insight" class="glass-section" style="margin: 32px auto 0 auto;">
+          <h2 class="section-title" style="text-align: left;">Summary Insight: Where and How to Focus Content Moderation</h2>
+          <p>Our data shows that UAE, Poland, and Egypt have the highest number of harmful content reports so these countries need the most attention right now.</p>
+          <p>In these places, people often use popular hashtags like #hot, #sex, #sexy, and #porn, which get a lot of likes and shares. This means explicit and offensive content is widely seen and can spread quickly.</p>
+          <p>We also found certain risky words like “sex,” “nude,” “porn,” “bitch,” and “slut” popping up a lot in harmful posts. These words are in English but similar words likely exist in local languages too. So, we need to update our filters to understand slang and phrases in the languages people actually use there.</p>
+          <p>Our content detection model is good at spotting safe posts (95% accurate), and it finds most harmful posts (94% recall). But it sometimes flags too many safe posts as harmful (only 32% precision for violations), which wastes moderation time.</p>
+          <p>To fix this, we should:</p>
+          <ul>
+            <li>Focus more moderators and better filters on UAE, Poland, and Egypt because these places have the most issues.</li>
+            <li>Adapt keyword and hashtag detection to local languages and slang so we catch more real problems and reduce false alarms.</li>
+            <li>Keep an eye on trending hashtags and keywords in these countries to catch harmful content early, especially during big events or breaking news.</li>
+          </ul>
+          <p>By doing this, we can stop harmful content from spreading too fast and keep the platform safer for everyone, especially in the countries where it’s most needed.</p>
         </div>
       </main>
 
