@@ -317,12 +317,12 @@
 
           <button class="collapsible glass">Data Description</button>
           <div class="content glass">
-            <p>The dataset includes about 8,000 tweets collected over one week (January 1–7, 2025). Each tweet is an anonymized user comment with details like the time it was posted. The tweets include all kinds of content—some normal, some potentially harmful, such as threats, insults, or rude language. The data is cleaned and user privacy is protected. This dataset helps us study harmful content and build tools to detect it. We handle all data carefully and responsibly.</p>
+            <p>The dataset includes about 8,000 tweets collected over one week (January 1–7, 2025). Each tweet is an anonymized user comment with details like the time it was posted. The tweets include all kinds of content some normal, some potentially harmful, such as threats, insults, or rude language. The data is cleaned and user privacy is protected. This dataset helps us study harmful content and build tools to detect it. We handle all data carefully and responsibly.</p>
           </div>
 
           <button class="collapsible glass">Data and Model Implementation</button>
           <div class="content glass">
-            <p>This project implements a full-cycle pipeline to detect and review harmful content on social media using both machine learning models and manual validation. The process reflects a practical content moderation setup, integrating transformer-based models with OSINT-inspired keyword checks and human-in-the-loop evaluation.</p>
+            <p>This project implements a full cycle pipeline to detect and review harmful content on social media using both machine learning models and manual validation. The process reflects a practical content moderation setup, integrating transformer based models with OSINT inspired keyword checks and human in the loop evaluation.</p>
             <h3>1. Data Collection and Preparation</h3>
             <p>- Dataset: 8,000 tweets from <strong>01–07 January 2025</strong>, sourced from Kaggle for research.<br />- Includes tweet metadata (location, user ID, engagement metrics).<br />- Data imported via <code>pandas</code> and deduplicated on tweet text to ensure uniqueness.</p>
 
@@ -437,7 +437,7 @@ print(f"Saved processed data to {output_path}")</code></pre>
             <p>In this step, I focus on validating the model’s harmful content predictions by performing a manual review grounded in OSINT (Open Source Intelligence) principles. I first filter tweets that the Detoxify and HuggingFace models flagged as harmful, then review each tweet to confirm whether it truly violates community guidelines (X Rules and Policies). The manual judgment categorizes tweets as either "harmful" or "safe" in a Final Review column.</p>
             <p>The criteria for this review align with specific sections of the community rules and policies, focusing on severe toxicity, obscenity, threat, insult, and identity attack. Leveraging OSINT techniques, such as keyword analysis, linguistic pattern recognition, and contextual assessment, helps ensure thorough validation beyond automated detection. This approach helps improve overall accuracy by identifying false positives and false negatives, which the models alone might miss or misclassify.</p>
             <p>After reviewing tweets flagged as harmful by the models, the next step involves manually checking tweets marked as safe by searching for critical keywords and linguistic markers identified through OSINT research—terms like "Nigga", "Porn", "Child", "Teenager", and "Sex" that commonly appear in harmful content. This targeted keyword search is informed by ongoing OSINT monitoring to detect emerging threats and evolving harmful language patterns.</p>
-            <p>By combining automated filtering with OSINT-supported human insight, this process ensures a more comprehensive and adaptive detection system. It effectively closes gaps where models may underperform, providing a robust defense against harmful content.</p>
+            <p>By combining automated filtering with OSINT supported human insight, this process ensures a more comprehensive and adaptive detection system. It effectively closes gaps where models may underperform, providing a robust defense against harmful content.</p>
 
             <button class="collapse-btn" onclick="toggleCollapse('step4')">Chartflow (Code)</button>
             <div id="step4" class="collapsible-content glass">
